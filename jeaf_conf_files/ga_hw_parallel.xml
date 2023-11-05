@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : ga_hw_parallel.xml
+    Created on : 19 de noviembre de 2008, 13:28
+    Author     : fai
+    Description:
+        Configuration of a GA (parallel evaluation). It tries to replicate an evolution in 
+        hardware: low numbers of evaluations and building and disasembly time is
+        taking into accound for the stop criteria (wall clock).
+        
+        This configuration file was used for the article:
+        Moreno, Rodrigo, and Andres Faiña. "Out of Time: On the Constrains that 
+        Evolution in Hardware Faces When Evolving Modular Robots." International
+        Conference on the Applications of Evolutionary Computation (Part of 
+        EvoStar). Springer, Cham, 2022.
+-->
+<EvolutionaryAlgorithm>
+    <Class>es.udc.gii.common.eaf.algorithm.parallel.ParallelEvolutionaryAlgorithm</Class>
+    <EA>es.udc.gii.common.eaf.algorithm.GeneticAlgorithm</EA><Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.MaximizingFitnessComparator</Comparator>
+    <Population>
+        <Size>10</Size>
+        <Individual>
+            <Class>modules.individual.TreeIndividual</Class>
+            <!-- 42 = 10 Modules
+            87 = 10 Modules
+            141 = 16 Modules
+            177 = 20 Modules-->
+            <Chromosome size ="87"></Chromosome>
+        </Individual>
+    </Population>
+
+    <OperatorChains>
+        <SelectionnChain>
+            <Operator>
+                <Class>TournamentSelection</Class>
+                <PoolSize>2</PoolSize>
+            </Operator>
+        </SelectionnChain>
+        <!-->There is not eval operator, the evaluation strategy performs the evaluation<-->
+        <ReproductionChain>
+            <Operator>
+                <Class>modules.jeaf.operator.GaCrossOverOperator</Class>
+                <!--Probability of crossover, in percentage. 100=always apply crossover-->
+                <Probability>100</Probability>
+            </Operator>
+            <Operator>
+                <Class>modules.jeaf.operator.GaMutationOperator</Class>
+                <!--> We only use the following operations for mutations
+                 (not configurable yet):
+                AddNode (Morphological Mutation)
+                ShakingModule (Morphological Mutation)
+                DeleteNode (Morphological Mutation)
+                ShakingControl (Controller Mutation)
+                -->
+                
+                <!-- There is a warning that the Probability parameter has not been defined, 
+                but you can ignore it safely. Instead of "Probability", we define the "MorphMutationProbability",
+                and the "CtrlMutationProbability".-->
+                <MorphMutationProbability>0.2</MorphMutationProbability>
+  
+                <!-->Probability of select one of these operations once there is
+                a mutation of the morphology. Their probabilities should add 1.<-->
+                <AddNodeProbability>0.3333</AddNodeProbability>
+                <ShakeNodeProbability>0.3333</ShakeNodeProbability>
+                <DeleteNodeProbablility>0.3334</DeleteNodeProbablility>
+                
+                <!-->Probability to mutate a parameter of the controller<-->
+                <CtrlMutationProbability>0.3</CtrlMutationProbability>
+                <SigmaGaussianMutation>0.3</SigmaGaussianMutation>
+              
+            </Operator>
+            <Operator>
+                <Class>modules.jeaf.operator.GaHwEvalTimeOperator</Class>
+            </Operator>
+        </ReproductionChain>
+        <ReplaceChain>
+            <Operator>
+                <Class>es.udc.gii.common.eaf.algorithm.operator.replace.ElitismOperator</Class>
+                <Elitism>1</Elitism>
+            </Operator>
+        </ReplaceChain>
+    </OperatorChains>
+
+
+    <EvaluationStrategy>
+        <Class>es.udc.gii.common.eaf.algorithm.parallel.evaluation.DistributedEvaluation</Class>
+        <ChunkSize>1</ChunkSize>
+        <Races>1</Races></EvaluationStrategy>
+    <Objective>
+        <CheckBounds/>
+        <ObjectiveFunction>
+            <Class>modules.jeaf.application.edhmor.RoboticObjetiveFunction</Class>
+        </ObjectiveFunction>
+    </Objective>
+    <StopTests>
+        <StopTest>
+            <Class>modules.jeaf.stoptest.HwEvalWallTimeStopTest</Class>
+            <MaxWallTime>172800.0</MaxWallTime>
+        </StopTest>
+    </StopTests>
+    <LogTool>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.parallel.BestIndividualLogTool</Class>
+            <Folder>./log</Folder>
+			<Number>2</Number>
+            <Name>best</Name>
+        </Log>
+        <!--
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.PopulationLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>population</Name>
+        </Log>
+        -->
+        <Log>
+            <Class>modules.jeaf.log.parallel.ParallelBestMeanWallTimeFELogTool</Class>
+            <Folder>./log</Folder>
+            <Name>evolution</Name>
+        </Log>
+        
+        <!--> Logs with FE instead of  generations <-->
+        <!--
+                <Log>
+                    <Class>es.udc.gii.common.eaf.log.BestFEsLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>best_fe</Name>
+                </Log>
+                <Log>
+                    <Class>es.udc.gii.common.eaf.log.FEsBestMeanLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>evolucion_fe</Name>
+                </Log>
+        -->
+        <!--> Logs for tree individuals <-->
+        <!--
+                <Log>
+                    <Class>modules.jeaf.log.BestTreeLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>besttree</Name>
+                </Log>
+                <Log>
+                    <Class>modules.jeaf.log.TreePopulationLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>treepopulation</Name>
+                </Log>
+                <Log>
+                    <Class>modules.jeaf.log.IndividualsTracks</Class>
+                    <Folder>./log/ind_tracks</Folder>
+                    <Name>ind</Name>
+                </Log>
+                <Log>
+                    <Class>modules.jeaf.log.NumberEvaluationsLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>nEval</Name>
+                </Log>
+        -->
+    </LogTool>
+    </EvolutionaryAlgorithm>

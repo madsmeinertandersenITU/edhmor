@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : simulationControl.xml
+    Created on : 12 de junio de 2008, 13:38
+    Author     : fai
+    Description:
+        This configuration file specifies the parameters to evolve modular 
+        robots using the EDHMOR framework.
+-->
+<SimulationControl>
+    <!-- Modules used to build the robots: Emerge, Edhmor, etc.-->	
+    <ModuleSet>EmergeProximitySensorModules</ModuleSet>
+    
+    <!-- Configuration file for the evolutionary algorithm -->     
+    <AlgorithmConfigFile>jeaf_conf_files/edhmor_serial.xml</AlgorithmConfigFile>   
+     
+    <Simulation>
+        <!-- Number of times that attempts to evalaute a robot. If the 
+        evaluation fails this number, the evolution is stopped  -->     
+        <Attempts>15</Attempts>
+        
+        <!-- Max time to evaluate the robot (in seconds) -->
+        <MaxSimulationTime>30</MaxSimulationTime>
+        
+        <!-- If to false if you are using a single core of your computer to 
+        evaluate the population. Set to true if you are using several cores (you
+        also need to install MPJ Express and a configuration of the evolutionary 
+        algorithm that performs parallel evalutions).  -->
+        <UseMPI>false</UseMPI>
+        
+        <!-- CoppeliaSim is compiled for Ubuntu in linux. In order to run it in 
+        other distributions, we use a singularity container. Set it to false, if
+        you are using Windows, macOS or Ubuntu. Set it to true and set up the 
+        path if you are using a singularity container to run CoppeliaSim. -->  
+        <UseSingularity>false</UseSingularity>
+        <SingularitySifPath>/home/rodr/coppeliasim4.sif</SingularitySifPath>  
+        
+        <CoppeliaSim>
+            <!-- Example of the CoppeliaSim´s Path
+            In Windows: C:\\Program Files\\CoppeliaRobotics\\CoppeliaSimEdu\\
+            In Linux: /work/itureal/coppeliasim
+            Or use an environment variable: $COPPELIASIM_HOME  
+            -->
+            <Path>$COPPELIASIM_HOME</Path>
+        </CoppeliaSim>
+    </Simulation>
+
+    <!-- Several worlds or environments can be used to evaluate the robots-->
+    <Worlds>
+        <!-- Numbers of environments to evaluate each robot -->
+        <NumberOfWorldsBase>1</NumberOfWorldsBase>
+        
+        <!-- Names of all the environments to be used -->
+        <WorldBase0>default</WorldBase0>
+        <!-- <WorldBase1>default1</WorldBase1> -->
+        <!-- <WorldBase2>default2</WorldBase2> -->
+        
+        <!-- We select the function (min or mean) to calculate the fitness of 
+        the robot after being evaluated in all the worlds -->
+        <FunctionToEvaluateWorlds>mean</FunctionToEvaluateWorlds>
+    </Worlds>
+
+    <!-- Prints debugging information. -->
+    <Debug>false</Debug>
+    
+    <Control>
+        <!-- Configuration of the sinusoidal controllers -->
+        <RobotController>coneSensorController</RobotController>
+        
+        <!-- Three parameters can be evolved (or not): 
+        amplitude, frequency and phase offset -->
+        <UseAmplitudeControl>false</UseAmplitudeControl>
+        <UseAngularFreqControl>false</UseAngularFreqControl>
+        <UsePhaseControl>true</UsePhaseControl>
+	
+        <!-- Range of the parameters -->        
+        <AmplitudeControl>
+            <!-- 0 is minimum amplitude,
+            1 is maximum amplitude --> 
+            <MaxValue>1</MaxValue>
+            <MinValue>0</MinValue>
+        </AmplitudeControl>
+        <AngularFreqControl>
+            <!-- 0 is minimum frequency
+            1 is maximum frequency --> 
+            <MaxValue>1</MaxValue>
+            <MinValue>0</MinValue>
+        </AngularFreqControl>
+        <PhaseControl>
+            <!-- In degrees -->
+            <MaxValue>360</MaxValue>
+            <MinValue>0</MinValue>
+        </PhaseControl>
+        
+        <!-- Only used in case of using a sinusoidalControllerWNoise controller,
+        which adds noise to the controllers -->
+        <noiseStd>0.001</noiseStd>
+        <indivNoise>false</indivNoise>
+    </Control>
+
+    <Robot>
+        <!-- The maximum number of modules is defined by the size of the 
+        chromosoma in the configuration file of the evolutionary algorithm.
+        NMnxModules=(ChrSize+3)/9 -->
+        
+        <!-- Force a base module as root module-->    
+        <FirstModuleBase>true</FirstModuleBase>
+        
+        <!-- Force the number of connections for the root module:
+        0 means use a random number between 0 and the number of faces of the root module -->    
+        <FirstNumConnections>0</FirstNumConnections> 
+        
+        <!-- Maximum number of  modules when creating a robot --> 
+        <NMaxModulesIni>5</NMaxModulesIni>
+        
+        <!-- Minimum number of modules when creating a robot --> 
+        <NMinModulesIni>3</NMinModulesIni>
+        
+        <!-- Maximum number of connections (children) for a module --> 
+        <NMaxConnections>5</NMaxConnections>
+        
+        <!-- Types of modules to use from the module set --> 
+        <TypeModules>
+            <MaxValue>2</MaxValue>
+            <MinValue>2</MinValue>
+        </TypeModules>
+    </Robot>
+    
+    
+    <FitnessFunction>
+        <!--Name of the Fitness Function to use. Currently, one of these:
+        travelledDistance
+        distanceTravelledAndBrokenConnPenalty-->
+        <Name>
+            distanceTravelled
+        </Name>
+            
+        <!--Parameters for the Fitness Function-->
+        <!--Not all of them are necessary for a specific fitness function-->
+        <!--Check the implementation of the fitness function-->
+            
+        <!--Time to request the initial and final poses-->
+        <!--Negative values mean time 0 and end, respectively-->
+        <TimeIni>6</TimeIni>
+        <TimeEnd>-1</TimeEnd>
+        <Penalty>0.8</Penalty> <!--Penalty apllied by some F.F.-->
+        <Pose>BASE</Pose> <!--COM: Center of Mass or BASE: base module-->  
+    </FitnessFunction>
+ 
+    
+    <!-- Parameters regarding the assembling time of the modules. Only used when 
+    the smulation uses the "real" wall time as stop criteria simulating an 
+    in hardware (taking into account that assembling and diassembly the modules 
+    takes time). See "Out of Time: On the Constrains that Evolution in Hardware 
+    Faces When Evolving Modular Robots" -->
+    <Assembly>
+        <TimePerModule>20</TimePerModule>
+    </Assembly>
+    
+</SimulationControl>

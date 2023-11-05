@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : edhmor_serial.xml
+    Created on : 19 de noviembre de 2008, 13:28
+    Author     : fai
+    Description:
+        Configuration of an ES with the edhmor system with serial evaluation. 
+-->
+<EvolutionaryAlgorithm>
+    <Class>es.udc.gii.common.eaf.algorithm.EvolutionaryStrategy</Class>
+    <Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.MaximizingFitnessComparator</Comparator>
+    <Lambda>1</Lambda>
+    <Population>
+        <Size>8</Size>
+        <Individual>
+            <Class>modules.individual.TreeIndividual</Class>
+            <!-- 42 = 10 Modules
+                 87 = 10 Modules
+                 141 = 16 Modules
+                 177 = 20 Modules-->
+            <Chromosome size ="141"></Chromosome>
+        </Individual>
+    </Population>
+
+    <OperatorChains>
+
+        <EvaluationChain>
+            <Operator>
+                <Class>es.udc.gii.common.eaf.algorithm.operator.evaluate.LocalSearchOperator</Class>
+                <IndividualImprover>
+                    <Class>modules.jeaf.operator.improver.EdhmorExplorationOperator</Class>
+		    <nEvalAddNode>3</nEvalAddNode>
+		    <nEvalAdaptMorf>3</nEvalAdaptMorf>
+		    <nEvalAdaptControl>10</nEvalAdaptControl>
+                </IndividualImprover>
+                <IndividualChooser>
+                    <Class>es.udc.gii.common.eaf.plugin.individual.BestIndividual</Class>
+                </IndividualChooser>
+            </Operator>
+
+        </EvaluationChain> 
+        <ReproductionChain>
+            <Operator>
+                <Class>modules.jeaf.operator.EdhmorMorphologicalMutationOperator</Class>
+                <Probability>1</Probability>
+                <nAddNode>2</nAddNode>
+                <nAdaptMorf>2</nAdaptMorf>
+                <nAdaptContr>1</nAdaptContr>
+                <nPoda>2</nPoda>
+                <!-->Probability to mutate a parameter of the controller<-->
+                <CtrlMutationProbability>0.3</CtrlMutationProbability>
+                <SigmaGaussianMutation>0.1</SigmaGaussianMutation>
+            </Operator>
+        </ReproductionChain>
+        <ReplaceChain>
+            <Operator>
+                <Class>modules.jeaf.operator.EdhmorMorphologicalReplaceOperator</Class>
+                <ApplyEveryXGenerations>7</ApplyEveryXGenerations>
+		<Elitism>1</Elitism>
+		<NOperations>2</NOperations>
+                <Operation0>modules.jeaf.operation.grow.symmetry.XReflectionSymmetry</Operation0>
+		<Operation1>modules.jeaf.operation.grow.symmetry.YReflectionSymmetry</Operation1>
+		<!--<Operation2>modules.jeaf.operation.grow.AddStability</Operation2>-->
+            </Operator>
+        </ReplaceChain>
+    </OperatorChains>
+
+
+    <EvaluationStrategy>
+        <Class>es.udc.gii.common.eaf.algorithm.evaluate.SerialEvaluationStrategy</Class>
+    </EvaluationStrategy>
+    <Objective>
+        <CheckBounds/>
+        <ObjectiveFunction>
+            <Class>modules.jeaf.application.edhmor.RoboticObjetiveFunction</Class>
+        </ObjectiveFunction>
+    </Objective>
+    <StopTests>
+        <StopTest>
+            <Class>es.udc.gii.common.eaf.stoptest.MaxFEsStopTest</Class>
+            <MaxFEs>6000</MaxFEs>
+        </StopTest>
+    </StopTests>
+    <LogTool>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.BestIndividualLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>best</Name>
+        </Log>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.PopulationLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>population</Name>
+        </Log>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.BestMeanLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>evolution</Name>
+        </Log>
+
+        <!--> Logs with function evaluations (FE) instead of generations <-->
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.BestFEsLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>best_fe</Name>
+            <Fes_Prints>1000, 2000, 3000, 4000, 5000, 6000</Fes_Prints>
+        </Log>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.FEsBestMeanLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>evolucion_fe</Name>
+        </Log>
+        <!--> Logs for tree individuals <-->
+        <Log>
+            <Class>modules.jeaf.log.BestTreeLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>besttree</Name>
+        </Log>
+        <Log>
+            <Class>modules.jeaf.log.TreePopulationLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>treepopulation</Name>
+        </Log>
+        <Log>
+            <Class>modules.jeaf.log.IndividualsTracks</Class>
+            <Folder>./log/ind_tracks</Folder>
+            <Name>ind</Name>
+        </Log>
+    </LogTool>
+</EvolutionaryAlgorithm>

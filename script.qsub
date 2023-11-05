@@ -1,0 +1,6 @@
+#!/bin/bash
+source /opt/scripts/java.sh
+source /opt/scripts/gazebo-0.8.sh
+
+java -jar tesis.jar
+

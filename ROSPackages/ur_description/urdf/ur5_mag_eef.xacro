@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur5_robot">
+  <!--
+    This is a convenience top-level xacro which loads the macro for the UR5e
+    which defines the default values for the various "parameters files"
+    parameters for a UR5e.
+
+    This file is only useful when loading a stand-alone, completely isolated
+    robot with only default values for all parameters such as the kinematics,
+    visual and physical parameters and joint limits.
+
+    This file is not intended to be integrated into a larger scene or other
+    composite xacro.
+
+    Instead, xacro:include 'inc/ur5e_macro.xacro' and override the defaults
+    for the arguments to that macro.
+
+    Refer to 'inc/ur_macro.xacro' for more information.
+  -->
+  <xacro:include filename="$(find ur_description)/urdf/inc/ur5_macro.xacro"/>
+  <xacro:ur5_robot prefix="" />
+
+<link name="mag_eef">
+       <visual>
+          <geometry>
+            <cylinder length="0.0046" radius="0.036"/>
+          </geometry>
+          <material name="white">
+            <color rgba="1 1 1 1"/>
+          </material>
+         <origin rpy="0 0 0" xyz="0 0 0.0023"/>
+       </visual>
+       <visual>
+          <geometry>
+            <box size="0.055 0.055 0.0466"/>
+          </geometry>
+          <material name="white">
+            <color rgba="1 1 1 1"/>
+          </material>
+         <origin rpy="0 0 0" xyz="0 0 0.0279"/>
+       </visual>
+       <collision>
+         <geometry>
+           <cylinder length="0.0046" radius="0.036"/>
+         </geometry>
+         <origin rpy="0 0 0" xyz="0 0 0.0023"/>
+       </collision>
+       <collision>
+         <geometry>
+           <box size="0.055 0.055 0.0466"/>
+         </geometry>
+         <origin rpy="0 0 0" xyz="0 0 0.0279"/>
+       </collision>
+      <xacro:cylinder_inertial radius="0.036" length="0.0512" mass="0.083">
+        <origin xyz="0 0 0.0256" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+  </link>
+   <joint name="tool0-mag_eef" type="fixed">
+      <parent link="tool0" />
+      <child link="mag_eef" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+
+<link name="mag_eef_face"/>
+<joint name="mag_eef-mag_eef_face" type="fixed">
+      <parent link="mag_eef" />
+      <child link="mag_eef_face" />
+      <origin xyz="0 0 0.0512" rpy="0 0 0.558505" />
+    </joint>
+
+
+<link name="camera_box">
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="0.12 1.2 0.12"/> 
+        </geometry>
+        <material name="Grey">
+            <color rgba="0.7 0.7 0.7 1.0"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="0.12 1.2 0.12"/> 
+        </geometry>
+    </collision>
+</link>
+
+<joint name="camera_box" type="fixed">
+    <parent link="base_link" />
+    <child link="camera_box" />
+    <origin xyz="-0.6075 0.35 0.655" rpy="0 0 0" />
+</joint>  
+
+<link name="table_box">
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="1.485 1.22 0.88"/> 
+        </geometry>
+        <material name="Blue">
+            <color rgba="0.0 0.0 1.0 1.0"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="1.485 1.22 0.88"/> 
+        </geometry>
+    </collision>
+</link>
+
+<joint name="table_box" type="fixed">
+    <parent link="base_link" />
+    <child link="table_box" />
+    <origin xyz="-0.5625 0.041 -0.4625" rpy="0 0 0" />
+</joint>
+
+<link name="acrylic_sheet_box">
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="0.6 0.9 0.003"/> 
+        </geometry>
+        <material name="Black">
+            <color rgba="0.0 0.0 0.0 1.0"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="0.6 0.9 0.003"/> 
+        </geometry>
+    </collision>
+</link>
+
+<joint name="acrylic_sheet_box" type="fixed">
+    <parent link="base_link" />
+    <child link="acrylic_sheet_box" />
+    <origin xyz="-0.6125 0.058 -0.021" rpy="0 0 0" />
+</joint>
+
+<link name="back_wall_box">
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="0.2 3.0 3.0"/> 
+        </geometry>
+        <material name="White">
+            <color rgba="1.0 1.0 1.0 0.2"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="0.2 3.0 3.0"/> 
+        </geometry>
+    </collision>
+</link>
+
+<joint name="back_wall_box" type="fixed">
+    <parent link="base_link" />
+    <child link="back_wall_box" />
+    <origin xyz="0.88 0.0 0.0" rpy="0 0 0" />
+</joint>
+
+<link name="left_wall_box">
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="3.0 0.2 3.0"/> 
+        </geometry>
+        <material name="White">
+            <color rgba="1.0 1.0 1.0 0.2"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="3.0 0.2 3.0"/> 
+        </geometry>
+    </collision>
+</link>
+
+<joint name="left_wall_box" type="fixed">
+    <parent link="base_link" />
+    <child link="left_wall_box" />
+    <origin xyz="0.0 1.02 0.0" rpy="0 0 0" />
+</joint>
+
+<link name="right_wall_box">
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="3.0 0.2 3.0"/> 
+        </geometry>
+        <material name="White">
+            <color rgba="1.0 1.0 1.0 0.2"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="3.0 0.2 3.0"/> 
+        </geometry>
+    </collision>
+</link>
+
+<joint name="right_wall_box" type="fixed">
+    <parent link="base_link" />
+    <child link="right_wall_box" />
+    <origin xyz="0.0 -0.7 0.0" rpy="0 0 0" />
+</joint>
+
+
+</robot>

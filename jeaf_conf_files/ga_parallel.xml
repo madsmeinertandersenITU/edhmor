@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : ga_hw_parallel.xml
+    Created on : 24 de noviembre de 2022
+    Author     : fai
+    Description:
+        Configuration of a GA (parallel evaluation). 
+-->
+<EvolutionaryAlgorithm>
+    <Class>es.udc.gii.common.eaf.algorithm.parallel.ParallelEvolutionaryAlgorithm</Class>
+    <EA>es.udc.gii.common.eaf.algorithm.GeneticAlgorithm</EA>
+    <Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.MaximizingFitnessComparator</Comparator>
+    <Population>
+        <Size>100</Size>
+        <Individual>
+            <Class>modules.individual.TreeIndividual</Class>
+            <!-- 42 = 10 Modules
+            87 = 10 Modules
+            141 = 16 Modules
+            177 = 20 Modules-->
+            <Chromosome size ="177"></Chromosome>
+        </Individual>
+    </Population>
+
+    <OperatorChains>
+        <SelectionnChain>
+            <Operator>
+                <Class>TournamentSelection</Class>
+                <PoolSize>2</PoolSize>
+            </Operator>
+        </SelectionnChain>
+        <!-->There is not eval operator, the evaluation strategy performs the evaluation<-->
+        <ReproductionChain>
+            <Operator>
+                <Class>modules.jeaf.operator.GaCrossOverOperator</Class>
+                <!--Probability of crossover, in percentage. 100=always apply crossover-->
+                <Probability>100</Probability>
+            </Operator>
+            <Operator>
+                <Class>modules.jeaf.operator.GaMutationOperator</Class>
+                <!--> We only use the following operations for mutations
+                 (not configurable yet):
+                AddNode (Morphological Mutation)
+                ShakingModule (Morphological Mutation)
+                DeleteNode (Morphological Mutation)
+                ShakingControl (Controller Mutation)
+                -->
+                
+                <!-- There is a warning that the Probability parameter has not been defined, 
+                but you can ignore it safely. Instead of "Probability", we define the "MorphMutationProbability",
+                and the "CtrlMutationProbability".-->
+                <MorphMutationProbability>0.2</MorphMutationProbability>
+  
+                <!-->Probability of select one of these operations once there is
+                a mutation of the morphology. Their probabilities should add 1.<-->
+                <AddNodeProbability>0.3333</AddNodeProbability>
+                <ShakeNodeProbability>0.3333</ShakeNodeProbability>
+                <DeleteNodeProbablility>0.3334</DeleteNodeProbablility>
+                
+                <!-->Probability to mutate a parameter of the controller<-->
+                <CtrlMutationProbability>0.3</CtrlMutationProbability>
+                <SigmaGaussianMutation>0.3</SigmaGaussianMutation>
+              
+            </Operator>
+            <Operator>
+                <Class>modules.jeaf.operator.GaHwEvalTimeOperator</Class>
+            </Operator>
+        </ReproductionChain>
+        <ReplaceChain>
+            <Operator>
+                <Class>es.udc.gii.common.eaf.algorithm.operator.replace.ElitismOperator</Class>
+                <Elitism>1</Elitism>
+            </Operator>
+        </ReplaceChain>
+    </OperatorChains>
+
+
+    <EvaluationStrategy>
+        <Class>es.udc.gii.common.eaf.algorithm.parallel.evaluation.DistributedEvaluation</Class>
+        <ChunkSize>1</ChunkSize>
+        <Races>1</Races></EvaluationStrategy>
+    <Objective>
+        <CheckBounds/>
+        <ObjectiveFunction>
+            <Class>modules.jeaf.application.edhmor.RoboticObjetiveFunction</Class>
+        </ObjectiveFunction>
+    </Objective>
+    <StopTests>
+        <StopTest>
+            <Class>es.udc.gii.common.eaf.stoptest.MaxFEsStopTest</Class>
+            <MaxFEs>25000</MaxFEs>
+        </StopTest>
+    </StopTests>
+    <LogTool>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.parallel.BestIndividualLogTool</Class>
+            <Folder>./log</Folder>
+            <Number>2</Number>
+            <Name>best</Name>
+        </Log>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.parallel.ParallelBestMeanLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>evolution</Name>
+        </Log>
+    </LogTool>
+    </EvolutionaryAlgorithm>

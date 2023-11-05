@@ -1,0 +1,8 @@
+string command
+geometry_msgs/Pose[] waypoints
+---
+bool success
+float32 fraction
+string message
+geometry_msgs/Pose current_pose
+geometry_msgs/Wrench force_sensors

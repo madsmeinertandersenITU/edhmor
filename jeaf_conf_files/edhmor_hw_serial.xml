@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : edhmor_hw_serial.xml
+    Created on : 19 de noviembre de 2008, 13:28
+    Author     : fai
+    Description:
+        Configuration of a EA with the edhmor system with a serial evaluation. 
+        In addition, it tries to replicate an evolution in 
+        hardware: low numbers of evaluations and building and disasembly time is
+        taking into accound for the stop criteria (wall clock). 
+-->
+<EvolutionaryAlgorithm>
+    <Class>es.udc.gii.common.eaf.algorithm.EvolutionaryStrategy</Class>
+    <Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.MaximizingFitnessComparator</Comparator>
+    <Lambda>1</Lambda>
+    <Population>
+        <Size>4</Size>
+        <Individual>
+            <Class>modules.individual.TreeIndividual</Class>
+            <!-- 42 = 10 Modules
+            87 = 10 Modules
+            141 = 16 Modules
+            177 = 20 Modules-->
+            <Chromosome size ="87"></Chromosome>
+        </Individual>
+    </Population>
+
+    <OperatorChains>
+
+        <EvaluationChain>
+            <Operator>
+                <Class>es.udc.gii.common.eaf.algorithm.operator.evaluate.LocalSearchOperator</Class>
+                <IndividualImprover>
+                    <Class>modules.jeaf.operator.improver.EdhmorExplorationOperator</Class>
+                    <nEvalAddNode>1</nEvalAddNode>
+                    <nEvalAdaptMorf>1</nEvalAdaptMorf>
+                    <nEvalAdaptControl>4</nEvalAdaptControl>
+                </IndividualImprover>
+                <IndividualChooser>
+                    <Class>es.udc.gii.common.eaf.plugin.individual.BestIndividual</Class>
+                </IndividualChooser>
+            </Operator>
+
+        </EvaluationChain>
+        <ReproductionChain>
+            <Operator>
+                <Class>modules.jeaf.operator.EdhmorMorphologicalMutationOperator</Class>
+                <!--> The only uses the following operations (not configurable yet):
+                AddNode
+                ShakingModule
+                ShakingControl
+                DeleteAllNodes
+                -->
+                <Probability>1</Probability>
+                <nAddNode>2</nAddNode>
+                <nAdaptMorf>2</nAdaptMorf>
+                <nAdaptContr>1</nAdaptContr>
+                <nPoda>2</nPoda>
+
+                <!-->Probability to mutate a parameter of the controller<-->
+                <CtrlMutationProbability>0.3</CtrlMutationProbability>
+                <SigmaGaussianMutation>0.1</SigmaGaussianMutation>
+            </Operator>
+        </ReproductionChain>
+        <ReplaceChain>
+            <Operator>
+                <Class>modules.jeaf.operator.EdhmorMorphologicalReplaceOperator</Class>
+                <ApplyEveryXGenerations>7</ApplyEveryXGenerations>
+                <Elitism>10</Elitism>
+                <NOperations>2</NOperations>
+                <Operation0>modules.jeaf.operation.grow.symmetry.XReflectionSymmetry</Operation0>
+                <Operation1>modules.jeaf.operation.grow.symmetry.YReflectionSymmetry</Operation1>
+                <!--<Operation2>modules.jeaf.operation.grow.AddStability</Operation2>-->
+            </Operator>
+        </ReplaceChain>
+    </OperatorChains>
+
+
+    <EvaluationStrategy>
+        <Class>es.udc.gii.common.eaf.algorithm.evaluate.SerialEvaluationStrategy</Class>
+    </EvaluationStrategy>
+    <Objective>
+        <CheckBounds/>
+        <ObjectiveFunction>
+            <Class>modules.jeaf.application.edhmor.RoboticObjetiveFunction</Class>
+        </ObjectiveFunction>
+    </Objective>
+    <StopTests>
+        <StopTest>
+            <Class>modules.jeaf.stoptest.HwEvalWallTimeStopTest</Class>
+            <MaxWallTime>6000.0</MaxWallTime>
+        </StopTest>
+    </StopTests>
+    <LogTool>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.BestIndividualLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>best</Name>
+        </Log>
+        <!--
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.PopulationLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>population</Name>
+        </Log>
+        -->
+        <Log>
+            <Class>modules.jeaf.log.BestMeanWallTimeFELogTool</Class>
+            <Folder>./log</Folder>
+            <Name>evolution</Name>
+        </Log>
+        
+        <!--> Logs con FE en vez de generaciones <-->
+        <!--
+                <Log>
+                    <Class>es.udc.gii.common.eaf.log.BestFEsLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>best_fe</Name>
+                </Log>
+                <Log>
+                    <Class>es.udc.gii.common.eaf.log.FEsBestMeanLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>evolucion_fe</Name>
+                </Log>
+        -->
+        <!--> Logs specificos for tree individuals <-->
+        <!--
+                <Log>
+                    <Class>modules.jeaf.log.BestTreeLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>besttree</Name>
+                </Log>
+                <Log>
+                    <Class>modules.jeaf.log.TreePopulationLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>treepopulation</Name>
+                </Log>
+                <Log>
+                    <Class>modules.jeaf.log.IndividualsTracks</Class>
+                    <Folder>./log/ind_tracks</Folder>
+                    <Name>ind</Name>
+                </Log>
+                <Log>
+                    <Class>modules.jeaf.log.NumberEvaluationsLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>nEval</Name>
+                </Log>
+        -->
+    </LogTool>
+</EvolutionaryAlgorithm>

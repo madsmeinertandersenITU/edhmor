@@ -1,0 +1,5 @@
+string command
+geometry_msgs/Pose eefPose
+---
+bool success
+string message

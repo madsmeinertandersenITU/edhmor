@@ -1,0 +1,25 @@
+<launch>
+	
+	<!-- Setups Gazebo simulator
+	<include file="src/fmauch_universal_robot/ur_gazebo/launch/ur5_bringup.launch" /> -->
+
+	<!-- Reads the joint states of the robot (Gazebo simulator or real robot) and set them in CoppeliaSim-->
+	<node pkg="testing_ur5" name="vrep_joint_subscriber_1" type="vrep_joint_subscriber.py" output="screen"/>
+
+        <!-- Publishes fake force sensors values-->
+	<node pkg="testing_ur5" name="fake_force_sensors_publisher_1" type="fake_force_sensors_publisher.py" output="screen"/>
+
+	<!-- Setups Moveit commander-->
+        <include file="src/fmauch_universal_robot/ur5_mag_eef_moveit_config/launch/ur5_mag_eef_moveit_planning_execution.launch">
+		<arg name="sim" value="1"/>
+		<!--<arg name="limited" value="true"/>-->
+	</include>
+
+	<!-- Setups the Rosbridge-->
+        <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+
+
+	 <!-- Receives the java commands and sends them to MoveIt commander-->
+        <node pkg="testing_ur5" name="move_server" type="move_server_poseArray.py" output="screen"/>
+
+</launch>

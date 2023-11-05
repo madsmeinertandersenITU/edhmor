@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+EDHMOR - Evolutionary designer of heterogeneous modular robots
+<https://bitbucket.org/afaina/edhmor>
+Copyright (C) 2015 GII (UDC) and REAL (ITU)
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-->
+
+<EvolutionaryAlgorithm>
+    <!-- Clase que implementa el algoritmo evolutivo que se desea utilizar -->
+    <Class>es.udc.gii.common.eaf.algorithm.EvolutionaryStrategy</Class>
+    <!-- Estrategia de evaluacion -->
+    <EvaluationStrategy>
+        <Class>es.udc.gii.common.eaf.algorithm.evaluate.SingleObjective</Class>
+    </EvaluationStrategy>
+    <!-- Configuracion de la poblacion -->
+    <Population>
+        <!-- Tamao -->
+        <Size>4</Size>
+        <!--Configuracion del individuo -->
+        <Individual>
+            <Class>es.udc.gii.common.eaf.algorithm.population.Individual</Class>
+        </Individual>
+        <!-- Configuracion de los cromosomas -->
+        <Chromosome>
+            <!-- Clase que implementa los cromosomas -->
+            <Class>es.udc.gii.common.eaf.algorithm.population.chromosome.DefaultChromosome</Class>
+            <!-- Tamao de los cromosomas -->
+            <Size>27</Size>
+        </Chromosome>
+        <!-- Lista ordenada con los posibles tipos de genes que puede tener el cromosoma -->
+        <Genes>
+            <Gene>
+                <!-- Clase del tipo de gen -->
+                <Class>es.udc.gii.common.eaf.algorithm.population.gene.DoubleGene</Class>
+                <!-- Limite inferior -->
+                <LowerValue>1</LowerValue>
+                <!-- Limite superior --> 
+                <UpperValue>2.999</UpperValue>
+                <!-- Numero de genes que cumplen estas condiciones -->
+                <Num>6</Num>
+            </Gene>
+            <Gene>
+                
+                <!-- Clase del tipo de gen -->
+                <Class>es.udc.gii.common.eaf.algorithm.population.gene.DoubleGene</Class>
+                <!-- Limite inferior -->
+                 <!-- OJO tener en cuenta q deberia poder ser 0 (cambiar funcion evaluacion) -->
+                <LowerValue>1</LowerValue>
+                <!-- Limite superior --> 
+                <UpperValue>3.999</UpperValue>
+                <!-- Numero de genes que cumplen estas condiciones -->
+                <Num>5</Num>
+            </Gene>
+            <Gene>
+                
+                <!-- Clase del tipo de gen ===>> cara_padre -->
+                <Class>es.udc.gii.common.eaf.algorithm.population.gene.DoubleGene</Class>
+                <!-- Limite inferior -->
+                <LowerValue>0</LowerValue>
+                <!-- Limite superior --> 
+                <UpperValue>13.999</UpperValue>
+                <!-- Numero de genes que cumplen estas condiciones -->
+                <Num>5</Num>
+            </Gene>
+            <Gene>
+                
+                <!-- Clase del tipo de gen ===>> cara_hijo -->
+                <Class>es.udc.gii.common.eaf.algorithm.population.gene.DoubleGene</Class>
+                <!-- Limite inferior -->
+                <LowerValue>0</LowerValue>
+                <!-- Limite superior --> 
+                <UpperValue>5.999</UpperValue>
+                <!-- Numero de genes que cumplen estas condiciones -->
+                <Num>5</Num>
+            </Gene>
+            <Gene>
+                
+                <!-- Clase del tipo de gen ===>> param_control -->
+                <Class>es.udc.gii.common.eaf.algorithm.population.gene.DoubleGene</Class>
+                <!-- Limite inferior -->
+                <LowerValue>0</LowerValue>
+                <!-- Limite superior --> 
+                <UpperValue>359.99</UpperValue>
+                <!-- Numero de genes que cumplen estas condiciones -->
+                <Num>6</Num>
+                
+            </Gene>
+            
+        </Genes>
+    </Population>    
+    <!-- Configuracion de las cadenas de operadores -->
+    <OperatorChains>
+        <ReproductionChain>
+            <Operator>
+                <Class>es.udc.gii.common.eaf.algorithm.operator.reproduction.mutation.EvolutionaryStrategyMutation</Class>
+                <Lambda>1</Lambda>
+                <Operator>es.udc.gii.common.eaf.algorithm.operator.reproduction.mutation.de.DEMutationOperator</Operator>
+                <MutationStr>rand</MutationStr>
+                <Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.DefaultFitnessComparator</Comparator>
+                <DiffVector>1</DiffVector>
+                <F>0.9</F>
+                <CR>0.1</CR>
+                <CrossOverScheme>es.udc.gii.common.eaf.algorithm.operator.reproduction.mutation.de.crossover.BinCrossOverScheme</CrossOverScheme>
+            </Operator>
+        </ReproductionChain>
+    </OperatorChains>
+    <Objective>
+        <ObjectiveFunction>
+            <Class>modules.evol.morfologia.test.walk.RoboticObjetiveFunction</Class>
+            <MaxValue>0</MaxValue>
+            <MinValue>0</MinValue>
+        </ObjectiveFunction>
+    </Objective>
+    <StopTests>
+        <StopTest>
+            <!--Paramos por el numero maximo de evaluaciones-->
+            <Class>es.udc.gii.common.eaf.stoptest.MaxFEsStopTest</Class>   
+            <MaxFEs>20000</MaxFEs>
+        </StopTest>
+    </StopTests>
+    <LogTool>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.BestMeanLogTool</Class>
+            <File>./src/modules/evol/morfologia/test/walk/results/mean.txt</File>
+            <Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.DefaultFitnessComparator</Comparator>
+        </Log>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.BestIndividualLogTool</Class>
+            <File>./src/modules/evol/morfologia/test/walk/results/best.txt</File>
+            <Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.DefaultFitnessComparator</Comparator>
+        </Log>
+    </LogTool>
+</EvolutionaryAlgorithm>

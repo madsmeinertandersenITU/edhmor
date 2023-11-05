@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+    Document   : DifferentialEvolution.xml
+    Created on : 26 de octubre de 2006, 13:38
+    Author     : pilar
+    Description:
+        This configuration file implements a Differential Evolution algorithm.
+        The individuals are an array of doubles.
+-->
+<!-- <!DOCTYPE EvolutionaryAlgorithm SYSTEM "es/udc/gii/common/eaf/config/dtd/EvolutionaryAlgorithm.dtd"> -->
+<EvolutionaryAlgorithm>
+    <!-- Clase que implementa el algoritmo evolutivo que se desea utilizar -->
+    <Class>es.udc.gii.common.eaf.algorithm.EvolutionaryStrategy</Class>
+    <Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.MaximizingFitnessComparator</Comparator>
+    <!-- <Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.MinimizingFitnessComparator</Comparator> -->
+    <Lambda>1</Lambda>
+    <!-- Estrategia de evaluacion -->
+    <EvaluationStrategy>
+        <Class>es.udc.gii.common.eaf.algorithm.evaluate.SerialEvaluationStrategy</Class>
+        
+    </EvaluationStrategy>
+
+
+    <!-- Configuration de la population -->
+    <Population>
+        <!-- Size -->
+        <Size>4</Size>
+        <!--Configuration del individual -->
+        <Individual>
+            <Class>es.udc.gii.common.eaf.algorithm.population.Individual</Class>
+            <Chromosome size="141">
+            </Chromosome>
+        </Individual>
+    </Population>
+
+
+    <!-- Configuration of the operator chains -->
+    <OperatorChains>
+        <ReproductionChain>
+            <Operator>
+                <Class>es.udc.gii.common.eaf.algorithm.operator.reproduction.mutation.EvolutionaryStrategyMutation</Class>
+                <Operator>es.udc.gii.common.eaf.algorithm.operator.reproduction.mutation.de.DEMutationOperator</Operator>
+                <MutationStrategy>
+                    <Class>es.udc.gii.common.eaf.algorithm.operator.reproduction.mutation.de.mutationStrategy.RandomDEMutationStrategy</Class>
+                    <F>
+                        <Class>es.udc.gii.common.eaf.plugin.parameter.Constant</Class>
+                        <Value>0.9</Value>
+                    </F>
+                    <DiffVector>1</DiffVector>
+                </MutationStrategy>
+                <CrossOverScheme>
+                    <Class>es.udc.gii.common.eaf.algorithm.operator.reproduction.mutation.de.crossover.BinCrossOverScheme</Class>
+                    <CR>
+                        <Class>es.udc.gii.common.eaf.plugin.parameter.Constant</Class>
+                        <Value>0.9</Value>
+                    </CR>
+                </CrossOverScheme>
+            </Operator>
+        </ReproductionChain>
+        <ReplaceChain>
+            <Operator>
+                <Class>es.udc.gii.common.eaf.algorithm.operator.replace.EvolutionaryStrategyReplaceOperator</Class>
+            </Operator>
+        </ReplaceChain>
+    </OperatorChains>
+
+
+    <Objective>
+        <CheckBounds/>
+        <ObjectiveFunction>
+            <Class>modules.jeaf.application.de.DEWalkObjetiveFunction</Class>
+        </ObjectiveFunction>
+    </Objective>
+
+    <StopTests>
+        <StopTest>
+            <Class>es.udc.gii.common.eaf.stoptest.EvolveGenerationsStopTest</Class>
+            <Generations>200</Generations>
+        </StopTest>
+    </StopTests>
+    <LogTool>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.BestMeanLogTool</Class>
+            <Folder>log</Folder>
+            <Name>best_mean</Name>
+        </Log>
+    </LogTool>
+</EvolutionaryAlgorithm>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : PhysicalSetupParameters.xml
+    Created on : 2/09/2022, 10:09
+    Author     : fai
+    Description: Specify the parameters of the physical setup. 
+
+    This file is just a template and it is ignored by the program. Make a copy of this file 
+    and rename it as PhysicalSetupParameters.xml. That file will be read by the program and 
+    it is ignored in the repository
+-->
+<PhysicalSetupParameters>
+    <UseSimulation>false</UseSimulation>
+    <ArenaCeilingCamera>
+        <Index>0</Index>    
+        <Resolution>1920x1080</Resolution>     
+        <DistorsionParameters>
+            <k1>-0.4984304128980732</k1>
+            <k2>0.36407041707059157</k2>
+            <p1>9.572849155479603E-4</p1>
+            <p2>-0.0030789979081834945</p2>
+            <k3>-0.1646072253473259</k3>
+        </DistorsionParameters>
+        <IntrinsicParameters>
+            <fx>1441.9706748249007</fx>
+            <fy>1439.6600299919567</fy>
+            <cx>963.5162633660319</cx>
+            <cy>487.7023126345835</cy>
+        </IntrinsicParameters> 
+        <OptimizedParameters>
+            <fx>1065.5564758300782</fx>
+            <fy>1178.0777770996094</fy>
+            <cx>1178.6143510594702</cx>
+            <cy>439.32146646703626</cy>
+        </OptimizedParameters> 
+    </ArenaCeilingCamera>
+    <UR5EndEffectorCamera>
+        <Index>1</Index>    
+        <Resolution>1920x1080</Resolution>      
+    </UR5EndEffectorCamera>
+    <!-- TODO: TableReferenceTags are not implemented in the code. -->
+    <TableReferenceTags>
+        <TableReferenceTag1>
+            <ID>97</ID>
+            <Size>0.032</Size>        
+            <X>1</X>
+            <Y>1</Y>
+            <Z>1</Z>
+        </TableReferenceTag1> 
+        <TableReferenceTag1>
+            <ID>98</ID>  
+            <Size>0.032</Size>          
+            <X>1</X>
+            <Y>1</Y>
+            <Z>1</Z>
+        </TableReferenceTag1> 
+        <TableReferenceTag1>
+            <ID>99</ID>  
+            <Size>0.032</Size>          
+            <X>1</X>
+            <Y>1</Y>
+            <Z>1</Z>
+        </TableReferenceTag1> 
+        <TableReferenceTag1>
+            <ID>100</ID>    
+            <Size>0.032</Size>        
+            <X>1</X>
+            <Y>1</Y>
+            <Z>1</Z>
+        </TableReferenceTag1> 
+    </TableReferenceTags>
+    
+    <!--Height of the table with respect to the robot origin-->
+    <TableHeight>-0.0195</TableHeight>
+    </PhysicalSetupParameters>

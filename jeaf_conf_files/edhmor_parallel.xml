@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : EDHMOR_parallel.xml
+    Created on : 19 de noviembre de 2008, 13:28
+    Author     : fai
+    Description:
+        Configuration of a ES with the edhmor system when running in a cluster
+        (parallel evaluation).  
+-->
+<EvolutionaryAlgorithm>
+    <Class>es.udc.gii.common.eaf.algorithm.parallel.ParallelEvolutionaryAlgorithm</Class>
+    <EA>es.udc.gii.common.eaf.algorithm.EvolutionaryStrategy</EA>
+    <Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.MaximizingFitnessComparator</Comparator>
+    <Lambda>1</Lambda>
+    <Population>
+        <Size>40</Size>
+        <Individual>
+            <Class>modules.individual.TreeIndividual</Class>
+            <!-- 42 = 10 Modules
+                 87 = 10 Modules
+                 141 = 16 Modules
+                 177 = 20 Modules-->
+            <Chromosome size ="177"></Chromosome>
+        </Individual>
+    </Population>
+
+    <OperatorChains>
+
+<EvaluationChain>
+	    <Operator>
+                <Class>es.udc.gii.common.eaf.algorithm.operator.evaluate.LocalSearchOperator</Class>
+                <IndividualImprover>
+                    <Class>modules.jeaf.operator.improver.EdhmorExplorationOperator</Class>
+		    <nEvalAddNode>3</nEvalAddNode>
+		    <nEvalAdaptMorf>3</nEvalAdaptMorf>
+		    <nEvalAdaptControl>10</nEvalAdaptControl>
+                </IndividualImprover>
+                <IndividualChooser>
+                    <Class>es.udc.gii.common.eaf.plugin.individual.BestIndividual</Class>
+                </IndividualChooser>
+            </Operator>
+
+        </EvaluationChain>
+        <ReproductionChain>
+            <Operator>
+                <Class>modules.jeaf.operator.EdhmorMorphologicalMutationOperator</Class>
+		<Probability>1</Probability>
+		<nAddNode>2</nAddNode>
+		<nAdaptMorf>2</nAdaptMorf>
+		<nAdaptContr>1</nAdaptContr>
+		<nPoda>2</nPoda>
+                <!-->Probability to mutate a parameter of the controller<-->
+                <CtrlMutationProbability>0.3</CtrlMutationProbability>
+                <SigmaGaussianMutation>0.1</SigmaGaussianMutation>
+	    </Operator>
+        </ReproductionChain>
+        <ReplaceChain>
+            <Operator>
+                <Class>modules.jeaf.operator.EdhmorMorphologicalReplaceOperator</Class>
+		    <ApplyEveryXGenerations>7</ApplyEveryXGenerations>
+		    <Elitism>10</Elitism>
+		    <NOperations>2</NOperations>
+		    <Operation0>modules.jeaf.operation.grow.symmetry.XReflectionSymmetry</Operation0>
+		    <Operation1>modules.jeaf.operation.grow.symmetry.YReflectionSymmetry</Operation1>
+		    <!--<Operation2>modules.jeaf.operation.grow.AddStability</Operation2>-->
+            </Operator>
+        </ReplaceChain>
+    </OperatorChains>
+
+
+    <EvaluationStrategy>
+        <Class>es.udc.gii.common.eaf.algorithm.parallel.evaluation.DistributedEvaluation</Class>
+	<ChunkSize>1</ChunkSize>
+        <Races>1</Races>
+    </EvaluationStrategy>
+    <Objective>
+        <CheckBounds/>
+        <ObjectiveFunction>
+            <Class>modules.jeaf.application.edhmor.RoboticObjetiveFunction</Class>
+        </ObjectiveFunction>
+    </Objective>
+    <StopTests>
+        <StopTest>
+            <Class>es.udc.gii.common.eaf.stoptest.MaxFEsStopTest</Class>
+            <MaxFEs>25000</MaxFEs>
+        </StopTest>
+    </StopTests>
+    <LogTool>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.parallel.BestIndividualLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>best</Name>
+	    <Number>2</Number>
+        </Log>
+        <!--<Log>
+            <Class>es.udc.gii.common.eaf.log.parallel.PopulationLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>population</Name>
+        </Log>-->
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.parallel.ParallelBestMeanLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>evolution</Name>
+        </Log>
+	<!--> Logs with FE instead of  generations <-->
+	<Log>
+		<Class>es.udc.gii.common.eaf.log.parallel.ParallelBestFEsLogTool</Class>
+		<Folder>./log</Folder>
+		<Name>best_fe</Name>
+		<Number>2</Number>
+		<Fes_Prints>0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700 ,1800, 1900, 2000</Fes_Prints>
+	</Log>
+
+        <!--> Logs for tree individuals <-->
+        <Log>
+            <Class>modules.jeaf.log.parallel.BestTreeLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>besttree</Name>
+        </Log>
+        <!--<Log>
+            <Class>modules.util.log.parallel.TreePopulationLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>treepopulation</Name>
+        </Log>
+	<Log>
+            <Class>modules.util.log.parallel.ParallelIndividualsTracks</Class>
+            <Folder>./log/ind_tracks</Folder>
+            <Name>ind</Name>
+    	</Log>
+	<Log>
+            <Class>modules.util.log.parallel.ParallelIndividualsFitness</Class>
+            <Folder>./log/ind_fitness</Folder>
+            <Name>ind</Name>
+        </Log>-->
+	<Log>
+            <Class>modules.jeaf.log.parallel.ParallelIndividualsNumberOfNodes</Class>
+            <Folder>./log/ind_nodes</Folder>
+            <Name>ind</Name>
+        </Log>
+	<Log>
+            <Class>modules.jeaf.log.parallel.MeanNumberOfNodesLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>meanNON</Name>
+	</Log>
+    	<Log>
+	    <Class>modules.jeaf.log.parallel.MeanNumberOfNodesWithGoodFitness</Class>
+	    <Folder>./log</Folder>
+	    <Name>meanNONwithGoodFitness</Name>
+            <Threshold>0.5</Threshold>
+	</Log>
+	 <Log>
+            <Class>modules.jeaf.log.parallel.RobotsMeanFeaturesLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>meanFeatures</Name>
+        </Log>
+	 <Log>
+            <Class>modules.jeaf.log.parallel.RobotBestFeaturesLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>bestFeatures</Name>
+        </Log>
+    </LogTool>
+</EvolutionaryAlgorithm>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : ga_Serial.xml
+    Created on : 24 de noviembre de 2022
+    Author     : fai
+    Description:
+        Configuration of a GA (serial evaluation). 
+-->
+<EvolutionaryAlgorithm>
+    <Class>es.udc.gii.common.eaf.algorithm.GeneticAlgorithm</Class>
+    <Comparator>es.udc.gii.common.eaf.algorithm.fitness.comparator.MaximizingFitnessComparator</Comparator>
+    <Population>
+        <Size>40</Size>
+        <Individual>
+            <Class>modules.individual.TreeIndividual</Class>
+            <!-- 42 = 10 Modules
+            87 = 10 Modules
+            141 = 16 Modules
+            177 = 20 Modules-->
+            <Chromosome size ="177"></Chromosome>
+        </Individual>
+    </Population>
+
+    <OperatorChains>
+        <SelectionnChain>
+            <Operator>
+                <Class>TournamentSelection</Class>
+                <PoolSize>2</PoolSize>
+            </Operator>
+        </SelectionnChain>
+        <!-->There is not eval operator, the evaluation strategy performs the evaluation<-->
+        <ReproductionChain>
+            <Operator>
+                <Class>modules.jeaf.operator.GaCrossOverOperator</Class>
+                <!--Probability of crossover, in percentage. 100=always apply crossover-->
+                <Probability>100</Probability>
+            </Operator>
+            <Operator>
+                <Class>modules.jeaf.operator.GaMutationOperator</Class>
+                <!--> We only use the following operations for mutations
+                 (not configurable yet):
+                AddNode (Morphological Mutation)
+                ShakingModule (Morphological Mutation)
+                DeleteNode (Morphological Mutation)
+                ShakingControl (Controller Mutation)
+                -->
+                
+                <!-- There is a warning that the Probability parameter has not been defined, 
+                but you can ignore it safely. Instead of "Probability", we define the "MorphMutationProbability",
+                and the "CtrlMutationProbability".-->
+                <MorphMutationProbability>0.2</MorphMutationProbability>
+  
+                <!-->Probability of select one of these operations once there is
+                a mutation of the morphology. Their probabilities should add 1.<-->
+                <AddNodeProbability>0.3333</AddNodeProbability>
+                <ShakeNodeProbability>0.3333</ShakeNodeProbability>
+                <DeleteNodeProbablility>0.3334</DeleteNodeProbablility>
+                
+                <!-->Probability to mutate a parameter of the controller<-->
+                <CtrlMutationProbability>0.3</CtrlMutationProbability>
+                <SigmaGaussianMutation>0.1</SigmaGaussianMutation>
+              
+            </Operator>
+            <Operator>
+                <Class>modules.jeaf.operator.GaHwEvalTimeOperator</Class>
+            </Operator>
+        </ReproductionChain>
+        <ReplaceChain>
+            <Operator>
+                <Class>es.udc.gii.common.eaf.algorithm.operator.replace.ElitismOperator</Class>
+                <Elitism>1</Elitism>
+            </Operator>
+        </ReplaceChain>
+    </OperatorChains>
+
+
+    <EvaluationStrategy>
+        <Class>es.udc.gii.common.eaf.algorithm.evaluate.SerialEvaluationStrategy</Class>
+    </EvaluationStrategy>
+    <Objective>
+        <CheckBounds/>
+        <ObjectiveFunction>
+            <Class>modules.jeaf.application.edhmor.RoboticObjetiveFunction</Class>
+        </ObjectiveFunction>
+    </Objective>
+    <StopTests>
+        <StopTest>
+            <Class>es.udc.gii.common.eaf.stoptest.MaxFEsStopTest</Class>
+            <MaxFEs>6000</MaxFEs>
+        </StopTest>
+    </StopTests>
+    <LogTool>
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.BestIndividualLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>best</Name>
+        </Log>
+        <!--
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.PopulationLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>population</Name>
+        </Log>
+        -->
+        <Log>
+            <Class>es.udc.gii.common.eaf.log.BestMeanLogTool</Class>
+            <Folder>./log</Folder>
+            <Name>evolution</Name>
+        </Log>
+        
+        <!--> Logs with FE instead of  generations <-->
+        <!--
+                <Log>
+                    <Class>es.udc.gii.common.eaf.log.BestFEsLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>best_fe</Name>
+                </Log>
+                <Log>
+                    <Class>es.udc.gii.common.eaf.log.FEsBestMeanLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>evolucion_fe</Name>
+                </Log>
+        -->
+        <!--> Logs for tree individuals <-->
+        <!--
+                <Log>
+                    <Class>modules.jeaf.log.BestTreeLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>besttree</Name>
+                </Log>
+                <Log>
+                    <Class>modules.jeaf.log.TreePopulationLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>treepopulation</Name>
+                </Log>
+                <Log>
+                    <Class>modules.jeaf.log.IndividualsTracks</Class>
+                    <Folder>./log/ind_tracks</Folder>
+                    <Name>ind</Name>
+                </Log>
+                <Log>
+                    <Class>modules.jeaf.log.NumberEvaluationsLogTool</Class>
+                    <Folder>./log</Folder>
+                    <Name>nEval</Name>
+                </Log>
+        -->
+    </LogTool>
+</EvolutionaryAlgorithm>
