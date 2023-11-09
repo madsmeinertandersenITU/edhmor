@@ -121,7 +121,7 @@ public class ModuleSetFactory {
             set = new Emerge18ModuleSetBaseLength(8);
         if (SimulationConfiguration.getModuleSet().contentEquals("Emerge18AndFlatBaseModules"))
             set = new Emerge18FlatBaseModuleSet();
-        if (SimulationConfiguration.getModuleSet().contentEquals("EmergeProximitySensorModules"))
+        if (SimulationConfiguration.getModuleSet().contentEquals("Emerge18Modules1-ConeProximitySensor"))
             set = new EmergeProximitySensorModuleSet();
 
         if (SimulationConfiguration.getModuleSet().contentEquals("AtronModules"))

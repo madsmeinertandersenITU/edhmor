@@ -19,7 +19,7 @@ public class EmergeProximitySensorModuleSet extends ModuleSet {
         // The name of the different modules (they have to match with the name of
         // the file to load in the simulator)
         // moduleName[0] = "initialemergeModule";
-        moduleName[0] = "emergeProximitySensorModules";
+        moduleName[0] = "Emerge18Modules1-ConeProximitySensor";
         // define the different properties
         // number of faces for each type of module
 

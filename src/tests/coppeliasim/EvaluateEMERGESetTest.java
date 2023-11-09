@@ -25,7 +25,7 @@ public class EvaluateEMERGESetTest {
         robotIndividual.generate();
 
         // Set the correct module set to employ
-        String moduleSet = "emergeProximitySensorModules";
+        String moduleSet = "Emerge18Modules1-ConeProximitySensor";
         SimulationConfiguration.setModuleSet(moduleSet);
         ModuleSetFactory.reloadModuleSet();
 
