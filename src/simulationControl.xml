@@ -9,7 +9,7 @@
 -->
 <SimulationControl>
     <!-- Modules used to build the robots: Emerge, Edhmor, etc.-->	
-    <ModuleSet>EmergeProximitySensorModules</ModuleSet>
+    <ModuleSet>Emerge18Modules1-ConeProximitySensor</ModuleSet>
     
     <!-- Configuration file for the evolutionary algorithm -->     
     <AlgorithmConfigFile>jeaf_conf_files/edhmor_serial.xml</AlgorithmConfigFile>   
