@@ -108,21 +108,21 @@
         
         <!-- Force the number of connections for the root module:
         0 means use a random number between 0 and the number of faces of the root module -->    
-        <FirstNumConnections>0</FirstNumConnections> 
+        <FirstNumConnections>1</FirstNumConnections> 
         
         <!-- Maximum number of  modules when creating a robot --> 
-        <NMaxModulesIni>5</NMaxModulesIni>
+        <NMaxModulesIni>4</NMaxModulesIni>
         
         <!-- Minimum number of modules when creating a robot --> 
-        <NMinModulesIni>3</NMinModulesIni>
+        <NMinModulesIni>2</NMinModulesIni>
         
         <!-- Maximum number of connections (children) for a module --> 
-        <NMaxConnections>5</NMaxConnections>
+        <NMaxConnections>1</NMaxConnections>
         
         <!-- Types of modules to use from the module set --> 
         <TypeModules>
-            <MaxValue>2</MaxValue>
-            <MinValue>2</MinValue>
+            <MaxValue>4</MaxValue>
+            <MinValue>4</MinValue>
         </TypeModules>
     </Robot>
     

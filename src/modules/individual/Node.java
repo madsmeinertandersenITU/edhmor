@@ -51,12 +51,13 @@ public class Node implements Cloneable {
     private Matrix3d globalRpy;
     private int level = 0;
 
-    //Control parameters
+    // Control parameters
     private double controlPhase;
     private double controlAmplitude;
     private double controlAngularFreq;
 
-    public Node(int type, double amplitudeControl, double angularFreqControl, double controlOffset, double amplitudeModulator, double frequencyModulator, Node dad) {
+    public Node(int type, double amplitudeControl, double angularFreqControl, double controlOffset,
+            double amplitudeModulator, double frequencyModulator, Node dad) {
         this.type = type;
         this.controlAmplitude = amplitudeControl;
         this.controlAngularFreq = angularFreqControl;
@@ -77,11 +78,13 @@ public class Node implements Cloneable {
 
         double maxAmplitudeControl = SimulationConfiguration.getMaxAmplitudeControl();
         double minAmplitudeControl = SimulationConfiguration.getMinAmplitudeControl();
-        this.controlAmplitude = (EAFRandom.nextDouble() * (maxAmplitudeControl - minAmplitudeControl)) + minAmplitudeControl;
+        this.controlAmplitude = (EAFRandom.nextDouble() * (maxAmplitudeControl - minAmplitudeControl))
+                + minAmplitudeControl;
 
         double maxAngularFreqControl = SimulationConfiguration.getMaxAngularFreqControl();
         double minAngularFreqControl = SimulationConfiguration.getMinAngularFreqControl();
-        this.controlAngularFreq = (EAFRandom.nextDouble() * (maxAngularFreqControl - minAngularFreqControl)) + minAngularFreqControl;
+        this.controlAngularFreq = (EAFRandom.nextDouble() * (maxAngularFreqControl - minAngularFreqControl))
+                + minAngularFreqControl;
 
         nFaces = ModuleSetFactory.getModulesSet().getModulesFacesNumber(type);
         nOrientations = ModuleSetFactory.getModulesSet().getModuleOrientations(type);
@@ -118,7 +121,8 @@ public class Node implements Cloneable {
             return face;
         } else {
             try {
-                throw new InconsistentDataException("We are trying to add a child in a module with all its faces used.");
+                throw new InconsistentDataException(
+                        "We are trying to add a child in a module with all its faces used.");
             } catch (InconsistentDataException ex) {
                 System.err.println("parent module type: " + this.type);
                 System.err.print("Faces used: ");
@@ -148,7 +152,8 @@ public class Node implements Cloneable {
         for (Integer usedFace : usedFaces) {
             if (face == usedFace) {
                 try {
-                    throw new InconsistentDataException("We are trying to add a child in a face which is already used.");
+                    throw new InconsistentDataException(
+                            "We are trying to add a child in a face which is already used.");
                 } catch (InconsistentDataException ex) {
                     System.err.println("Face already used: " + face);
                     System.err.println("Node: " + this.toString());
@@ -172,7 +177,8 @@ public class Node implements Cloneable {
         int orientation = EAFRandom.nextInt(this.nOrientations);
         int trueFace = ModuleSetFactory.getModulesSet().getConnectionFaceForEachOrientation(type, orientation);
 
-        //We have to guarantee that the first value in the list usedFaces is the face which is used to connect to its parent module 
+        // We have to guarantee that the first value in the list usedFaces is the face
+        // which is used to connect to its parent module
         if (usedFaces.size() > 0) {
             usedFaces.set(0, trueFace);
         } else {
@@ -191,7 +197,8 @@ public class Node implements Cloneable {
 
         int trueFace = ModuleSetFactory.getModulesSet().getConnectionFaceForEachOrientation(type, orientation);
 
-        //We have to guarantee that the first value in the list usedFaces is the face which is used to connect to its parent module 
+        // We have to guarantee that the first value in the list usedFaces is the face
+        // which is used to connect to its parent module
         if (usedFaces.size() > 0) {
             usedFaces.set(0, trueFace);
         } else {
@@ -214,7 +221,7 @@ public class Node implements Cloneable {
      *
      * @param toChange the node of the child to change the orientation
      * @return if it was possible to find the child node as a children and
-     * change the orientation
+     *         change the orientation
      */
     public boolean changeOrientation(Node toChange) {
 
@@ -236,7 +243,8 @@ public class Node implements Cloneable {
                     } while (oldOrientation == newOrientation);
 
                     this.connections.get(i).setChildrenOrientation(newOrientation);
-                    int trueFace = ModuleSetFactory.getModulesSet().getConnectionFaceForEachOrientation(child.getType(), newOrientation);
+                    int trueFace = ModuleSetFactory.getModulesSet().getConnectionFaceForEachOrientation(child.getType(),
+                            newOrientation);
                     toChange.usedFaces.set(0, trueFace);
                     return true;
                 }
@@ -251,7 +259,7 @@ public class Node implements Cloneable {
      *
      * @param toChange the node of the child to change the connection face
      * @return if it was possible to find the child node as a children and
-     * change the connection face
+     *         change the connection face
      */
     public boolean changePosition(Node toChange) {
 
@@ -261,7 +269,7 @@ public class Node implements Cloneable {
 
                 int newPosition;
 
-                //if there are free faces
+                // if there are free faces
                 if (usedFaces.size() < this.nFaces) {
                     do {
                         newPosition = EAFRandom.nextInt(this.nFaces);
@@ -400,7 +408,8 @@ public class Node implements Cloneable {
         if (dad != null) {
             return usedFaces.get(0);
         } else {
-            throw new InconsistentDataException("Trying to find the face where the module attaches to its father but this module does not have a father...");
+            throw new InconsistentDataException(
+                    "Trying to find the face where the module attaches to its father but this module does not have a father...");
         }
     }
 
@@ -480,11 +489,18 @@ public class Node implements Cloneable {
         this.level = levelAux;
     }
 
-    /* Function that returns the maximum number of children that this module can 
-    have */
+    /*
+     * Function that returns the maximum number of children that this module can
+     * have
+     */
     public int getMaxChildren() {
         if (dad == null) {
+
+            if (nFaces == 0) {
+                return 1;
+            }
             return nFaces;
+
         } else {
             return (nFaces - 1);
         }
@@ -495,8 +511,10 @@ public class Node implements Cloneable {
         return (this.getMaxChildren() - children.size());
     }
 
-    /*Returns the number of connections of the node. That is, the number of 
-    children that it has. It is always equal to connections.size() */
+    /*
+     * Returns the number of connections of the node. That is, the number of
+     * children that it has. It is always equal to connections.size()
+     */
     public int getNConnections() {
         if (connections != null) {
             return connections.size();
@@ -531,15 +549,15 @@ public class Node implements Cloneable {
             childrensClone.add(nod);
             Connection con = this.connections.get(i).clone();
             connectionsClone.add(con);
-            //connectionsClone
+            // connectionsClone
         }
-        //This should only be run in the rootNode
+        // This should only be run in the rootNode
         if (dad == null) {
             node.dad = null;
         } else {
             System.err.print("Recursive calls to clone, ¡CHECK THIS!");
             System.exit(-1);
-            //node.dad = dad.clone();
+            // node.dad = dad.clone();
         }
 
         List<Integer> usedFacesClone = new ArrayList<Integer>();
@@ -551,7 +569,7 @@ public class Node implements Cloneable {
         node.connections = connectionsClone;
         node.usedFaces = usedFacesClone;
 
-        //Lets put the data that depends on their position in the robot as nulls
+        // Lets put the data that depends on their position in the robot as nulls
         node.xyz = null;
         node.rpy = null;
         node.globalRpy = null;
@@ -569,7 +587,7 @@ public class Node implements Cloneable {
             childrensClone.add(nod);
             Connection con = this.connections.get(i).clone();
             connectionsClone.add(con);
-            //connectionsClone
+            // connectionsClone
         }
 
         node.dad = dadNode;
@@ -583,7 +601,7 @@ public class Node implements Cloneable {
         node.connections = connectionsClone;
         node.usedFaces = usedFacesClone;
 
-        //Lets put the data that depends on their position in the robot as nulls
+        // Lets put the data that depends on their position in the robot as nulls
         node.xyz = null;
         node.rpy = null;
         node.globalRpy = null;
@@ -617,7 +635,7 @@ public class Node implements Cloneable {
      * successfully, and false otherwise.
      *
      * @param delNModules the number of modules to remove
-     * @param lowSubTree the branch to replace the modules from
+     * @param lowSubTree  the branch to replace the modules from
      * @return success or not
      */
     public boolean replaceNode(int delNModules, Node lowSubTree) {
@@ -647,9 +665,9 @@ public class Node implements Cloneable {
                 this.children.remove(i);
                 this.connections.remove(i);
                 this.addChildren(lowSubTree);
-//                    this.childrens.add(lowSubTree);
-//                    Connection conexion = new Connection(this, lowSubTree);
-//                    this.connections.add(conexion);
+                // this.childrens.add(lowSubTree);
+                // Connection conexion = new Connection(this, lowSubTree);
+                // this.connections.add(conexion);
                 return true;
             }
         }
@@ -695,7 +713,7 @@ public class Node implements Cloneable {
      * but the father still has the reference to this child.
      */
     public void eliminateBranch() {
-        //Llamamos recursivamente a eliminar los hijos
+        // Llamamos recursivamente a eliminar los hijos
         for (int i = 0; i < children.size(); i++) {
             this.children.get(i).eliminateBranch();
         }
@@ -705,14 +723,14 @@ public class Node implements Cloneable {
         this.children = null;
         this.connections = null;
     }
-    
+
     /**
      * Function that disconnects a node from its parent. Used in crossover
-     * operations. Remember that the dad still has the reference to this child. 
+     * operations. Remember that the dad still has the reference to this child.
      */
-    public void disconnectFromParent(){
-        if(dad != null) {
-            usedFaces.remove(0); //Remove face where this module is connected to dad
+    public void disconnectFromParent() {
+        if (dad != null) {
+            usedFaces.remove(0); // Remove face where this module is connected to dad
             this.dad = null;
         }
     }
@@ -739,7 +757,7 @@ public class Node implements Cloneable {
         }
         return param;
     }
-    
+
     private double circularBounceBack(double param, double min, double max) {
         if (param < min) {
             return max - (min - param);
@@ -751,7 +769,7 @@ public class Node implements Cloneable {
     }
 
     public void shakeControl(double prob, double sigma) {
-        
+
         if (SimulationConfiguration.isUseAmplitudeControl() && EAFRandom.nextDouble() < prob) {
             double maxAmplitudeControl = SimulationConfiguration.getMaxAmplitudeControl();
             double minAmplitudeControl = SimulationConfiguration.getMinAmplitudeControl();
@@ -773,7 +791,7 @@ public class Node implements Cloneable {
             controlPhase = circularBounceBack(controlPhase, minPhaseControl, maxPhaseControl);
         }
 
-        //Mutate the control parameters of the children
+        // Mutate the control parameters of the children
         for (Node node : children) {
             node.shakeControl(prob, sigma);
         }
@@ -783,14 +801,14 @@ public class Node implements Cloneable {
         for (int i = 0; i < children.size(); i++) {
             Node child = this.children.get(i);
 
-            //If the child node is operational active, shake it:
-            //    change the face in the parent where the module is connected
-            //    change the orientation
+            // If the child node is operational active, shake it:
+            // change the face in the parent where the module is connected
+            // change the orientation
             if (child.isIsOperationalActive()) {
 
-                //change the face in the parent where the module is connected
+                // change the face in the parent where the module is connected
                 if (usedFaces.size() < this.nFaces) {
-                    //Calculo de la nueva cara del padre
+                    // Calculo de la nueva cara del padre
                     int newParentFace;
                     boolean repeat;
                     int count = 0;
@@ -804,8 +822,10 @@ public class Node implements Cloneable {
                         }
                         count++;
                         if (count > 10000) {
-                            System.out.println("Infinite Loop: shakeLocalFacesAndControl (Shaking the face in the parent where the module is connected) in Node.java");
-                            System.err.println("Infinite Loop: shakeLocalFacesAndControl (Shaking the face in the parent where the module is connected) in Node.java");
+                            System.out.println(
+                                    "Infinite Loop: shakeLocalFacesAndControl (Shaking the face in the parent where the module is connected) in Node.java");
+                            System.err.println(
+                                    "Infinite Loop: shakeLocalFacesAndControl (Shaking the face in the parent where the module is connected) in Node.java");
                             System.exit(-1);
                         }
                     } while (repeat);
@@ -817,14 +837,15 @@ public class Node implements Cloneable {
                     this.connections.get(i).setDadFace(newParentFace);
                 }
 
-                //Shaking the orientation
+                // Shaking the orientation
                 boolean repeat;
                 int newOrientation, newChildrenTrueFace;
                 int count = 0;
 
                 do {
                     newOrientation = EAFRandom.nextInt(child.nOrientations);
-                    newChildrenTrueFace = ModuleSetFactory.getModulesSet().getConnectionFaceForEachOrientation(child.getType(), newOrientation);
+                    newChildrenTrueFace = ModuleSetFactory.getModulesSet()
+                            .getConnectionFaceForEachOrientation(child.getType(), newOrientation);
                     repeat = false;
 
                     for (int f = 0; f < child.usedFaces.size(); f++) {
@@ -835,8 +856,10 @@ public class Node implements Cloneable {
                     }
                     count++;
                     if (count > 10000) {
-                        System.out.println("Infinite Loop: shakeLocalFacesAndControl (Shaking the orientation) in Node.java");
-                        System.err.println("Infinite Loop: shakeLocalFacesAndControl (Shaking the orientation) in Node.java");
+                        System.out.println(
+                                "Infinite Loop: shakeLocalFacesAndControl (Shaking the orientation) in Node.java");
+                        System.err.println(
+                                "Infinite Loop: shakeLocalFacesAndControl (Shaking the orientation) in Node.java");
                         System.exit(-1);
                     }
                 } while (repeat);
@@ -845,7 +868,7 @@ public class Node implements Cloneable {
                 this.connections.get(i).setChildrenOrientation(newOrientation);
 
             }
-            //Mutate the children
+            // Mutate the children
             child.shakeDadFaceAndOrientation();
         }
 
@@ -856,7 +879,7 @@ public class Node implements Cloneable {
             if (pMutation > EAFRandom.nextDouble()) {
                 if (usedFaces.size() < this.nFaces) {
 
-                    //Calculate the new face of the parent
+                    // Calculate the new face of the parent
                     int newParentFace;
                     int count = 0;
                     boolean repeat;
@@ -884,7 +907,8 @@ public class Node implements Cloneable {
                     this.connections.get(i).setDadFace(newParentFace);
 
                     int newOrientation = EAFRandom.nextInt(this.children.get(i).nOrientations);
-                    int newChildrenTrueFace = ModuleSetFactory.getModulesSet().getConnectionFaceForEachOrientation(type, newOrientation);
+                    int newChildrenTrueFace = ModuleSetFactory.getModulesSet().getConnectionFaceForEachOrientation(type,
+                            newOrientation);
                     this.children.get(i).usedFaces.set(0, newChildrenTrueFace);
                     this.connections.get(i).setChildrenOrientation(newOrientation);
                 }
@@ -899,15 +923,15 @@ public class Node implements Cloneable {
      * and calls to this function to change the value of the used face.
      *
      * @param toChange child node which is going to be changed to a different
-     * face in the parent node
-     * @param newFace the face whether the child is connected now
+     *                 face in the parent node
+     * @param newFace  the face whether the child is connected now
      */
     public void changeUsedFace(Node toChange, int newFace) {
 
         for (int i = 0; i < this.children.size(); i++) {
             Node child = this.children.get(i);
             if (child == toChange) {
-                //if it has a parent
+                // if it has a parent
                 if (dad == null) {
                     this.usedFaces.set(i, newFace);
                 } else {
@@ -944,7 +968,8 @@ public class Node implements Cloneable {
         str += "\n" + strIni + "Amplitude: " + this.controlAmplitude;
         str += "\n" + strIni + "Angular Frequency: " + this.controlAngularFreq;
         str += "\n" + strIni + "Phase: " + this.controlPhase;
-        //str += "\n" + strIni +"Control Offset del Padre: " + this.dad.getControlOffset();
+        // str += "\n" + strIni +"Control Offset del Padre: " +
+        // this.dad.getControlOffset();
         str += "\n" + strIni + "Number of children: " + this.children.size();
         str += "\n" + strIni + "Faces occupied: ";
         for (int f : usedFaces) {
@@ -957,11 +982,11 @@ public class Node implements Cloneable {
                 str += ",  Orientation: " + this.getDad().getConnection(this).getChildrenOrientation();
             }
         }
-        //str += "\n" + strIni +"Ponderacion: " + this.ponderacion;
-        //str += "\n" + strIni +"is Active: " + this.isOperationalActive;
-        //str += "\n" + strIni +"xyz: " + this.xyz;
-        //str += "\n" + strIni +"Rpy: " + this.rpy;
-        //str += "\n" + strIni +"Global Rpy: " + this.globalRpy;
+        // str += "\n" + strIni +"Ponderacion: " + this.ponderacion;
+        // str += "\n" + strIni +"is Active: " + this.isOperationalActive;
+        // str += "\n" + strIni +"xyz: " + this.xyz;
+        // str += "\n" + strIni +"Rpy: " + this.rpy;
+        // str += "\n" + strIni +"Global Rpy: " + this.globalRpy;
         str += "\n";
         return str;
     }

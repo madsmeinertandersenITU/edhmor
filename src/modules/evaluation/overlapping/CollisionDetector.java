@@ -23,24 +23,31 @@ package modules.evaluation.overlapping;
 import modules.ModuleSet;
 import modules.ModuleSetFactory;
 import modules.evaluation.CalculateModulePositions;
+import modules.individual.SensorTree;
 import modules.individual.TreeIndividual;
 
 /**
  * CollisionDetector.java
  * Created on 16/02/2016
- * @author Andres Faiña <anfv  at itu.dk>
+ * 
+ * @author Andres Faiña <anfv at itu.dk>
  */
 public abstract class CollisionDetector {
-    
+
     protected ModuleSet moduleSet;
     protected CalculateModulePositions robotFeatures;
-    
+
     public abstract boolean isFeasible();
-    
+
     public void loadTree(TreeIndividual t) {
-        //Load the module set 
+        // Load the module set
         moduleSet = ModuleSetFactory.getModulesSet();
         robotFeatures = new CalculateModulePositions(t.getChromosomeAt(0));
     }
 
+    public void loadSensorTree(SensorTree t) {
+        // Load the module set
+        moduleSet = ModuleSetFactory.getModulesSet();
+        robotFeatures = new CalculateModulePositions(t.getChromosomeAt(0));
+    }
 }

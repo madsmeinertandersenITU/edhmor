@@ -7,6 +7,7 @@ import modules.ModuleSetFactory;
 import modules.evaluation.CoppeliaSimCreateRobot;
 import modules.evaluation.CoppeliaSimEvaluator;
 import modules.evaluation.CoppeliaSimulator;
+import modules.individual.SensorTree;
 import modules.individual.TreeIndividual;
 import modules.util.ChromoConversion;
 import modules.util.SimulationConfiguration;
@@ -20,7 +21,7 @@ public class EvaluateEMERGESetTest {
 
         // Create a random robot (using the parameters specified in
         // simulationControl.xml)
-        TreeIndividual robotIndividual = new TreeIndividual();
+        SensorTree robotIndividual = new SensorTree();
         robotIndividual.init(141);
         robotIndividual.generate();
 

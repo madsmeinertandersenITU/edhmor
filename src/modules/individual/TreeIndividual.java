@@ -83,13 +83,14 @@ public class TreeIndividual extends Individual {
         List<Node> nodes = new ArrayList<Node>();
         List<Integer> connectionsIni = new ArrayList<Integer>();
 
-        //Variables initialization of the tree
+        // Variables initialization of the tree
         int nTypeMax = SimulationConfiguration.getMaxTypeModules();
         int nTypeMin = SimulationConfiguration.getMinTypeModules();
         int nType = nTypeMax - nTypeMin + 1;
         int maxConnections = SimulationConfiguration.getNMaxConnections();
 
-        //Select the type of the first node according to whether or not the first module is a base
+        // Select the type of the first node according to whether or not the first
+        // module is a base
         int type;
         if (SimulationConfiguration.isFistModulesBase()) {
             type = 0;
@@ -106,7 +107,8 @@ public class TreeIndividual extends Individual {
             connections = Math.min(SimulationConfiguration.getFirstNumConnections(), rootNode.getMaxChildren());
         }
 
-        //If the number of children is greater than the number of modules in the initialization, reduce the number of children
+        // If the number of children is greater than the number of modules in the
+        // initialization, reduce the number of children
         if (connections >= maxModulesIni) {
             connections = EAFRandom.nextInt(maxModulesIni);
         }
@@ -140,16 +142,16 @@ public class TreeIndividual extends Individual {
                 }
             }
         }
-        //We calculate the number of modules hanging from each
+        // We calculate the number of modules hanging from each
         rootNode.setModulesSubTree();
         this.modifyChromosome(nodes);
 
-        //Check if the robot is feasible and have enough modules
+        // Check if the robot is feasible and have enough modules
         CollisionDetector collisionDetector = CollisionDetectorFactory.getCollisionDetector();
         collisionDetector.loadTree(this);
         if (!collisionDetector.isFeasible()
                 || nodes.size() < SimulationConfiguration.getNMinModulesIni()) {
-            this.generate(); //If not, generate another robot
+            this.generate(); // If not, generate another robot
         } else {
             HwEvalWallTime.increaseElapsedWallTime(
                     SimulationConfiguration.getAssemblyTimePerModule() * nodes.size());
@@ -157,7 +159,7 @@ public class TreeIndividual extends Individual {
 
     }
 
-    /*Function that returns a randomly selected node from all nodes in the tree.*/
+    /* Function that returns a randomly selected node from all nodes in the tree. */
     public Node getRandomNode() {
         Node randomNode = null;
         List<Node> nodes = createListNodes();
@@ -263,7 +265,8 @@ public class TreeIndividual extends Individual {
                     nodes.add(node.getChildren().get(i));
                 } else {
                     try {
-                        throw new InconsistentDataException("Este arbol tiene excesivos nodos: MaxModules: " + maxModules);
+                        throw new InconsistentDataException(
+                                "Este arbol tiene excesivos nodos: MaxModules: " + maxModules);
                     } catch (InconsistentDataException ex) {
                         System.err.print(this.detailedToString(nodes));
                         Logger.getLogger(TreeIndividual.class.getName()).log(Level.SEVERE, null, ex);
@@ -290,7 +293,7 @@ public class TreeIndividual extends Individual {
         boolean base = false;
         int maxModules = SimulationConfiguration.getMaxModules();
 
-        //Delete the chromosome
+        // Delete the chromosome
         for (int i = 0; i < cromosoma.length; i++) {
             for (int j = 0; j < cromosoma[i].getNumElements(); j++) {
                 cromosoma[i].setElement(j, 0);
@@ -305,17 +308,21 @@ public class TreeIndividual extends Individual {
                 if (i < maxModules) {
                     cromosoma[0].setElement(i, node.getType());
                 } else {
-                    throw new InconsistentDataException("Index error while trying to modufying the chromosome (changing the type of module)");
+                    throw new InconsistentDataException(
+                            "Index error while trying to modufying the chromosome (changing the type of module)");
                 }
                 if (i < maxModules - 1) {
                     cromosoma[0].setElement(i + maxModules, node.getNConnections());
                 }
                 for (int k = 0; k < nodes.get(i).getNConnections(); k++) {
                     if (j < maxModules - 1) {
-                        cromosoma[0].setElement(j + 2 * maxModules - 1, nodes.get(i).getConnections().get(k).getDadFace());
-                        cromosoma[0].setElement(j + 3 * maxModules - 2, nodes.get(i).getConnections().get(k).getChildrenOrientation());
+                        cromosoma[0].setElement(j + 2 * maxModules - 1,
+                                nodes.get(i).getConnections().get(k).getDadFace());
+                        cromosoma[0].setElement(j + 3 * maxModules - 2,
+                                nodes.get(i).getConnections().get(k).getChildrenOrientation());
                     } else {
-                        throw new InconsistentDataException("Index error while trying to modufying the chromosome (changing the parent face and orientation)");
+                        throw new InconsistentDataException(
+                                "Index error while trying to modufying the chromosome (changing the parent face and orientation)");
                     }
                     j++;
                 }
@@ -325,7 +332,7 @@ public class TreeIndividual extends Individual {
             }
 
             i++;
-            //Amplitude control
+            // Amplitude control
             cromosoma[0].setElement(4 * maxModules - 3 + nModuloGlobal, node.getControlAmplitude());
             cromosoma[0].setElement(5 * maxModules - 3 + nModuloGlobal, node.getControlAngularFreq());
             cromosoma[0].setElement(6 * maxModules - 3 + nModuloGlobal, node.getControlPhase());
@@ -474,9 +481,11 @@ public class TreeIndividual extends Individual {
         str += "\nNodes of the tree:";
         List<Node> nodes = this.createListNodes();
         str += this.getRootNode().branchToString();
-        /*for (Node node: nodes){
-        str += "\n" + node.toString();
-        }*/
+        /*
+         * for (Node node: nodes){
+         * str += "\n" + node.toString();
+         * }
+         */
         str += "\n";
         return str;
     }
@@ -515,7 +524,7 @@ public class TreeIndividual extends Individual {
         this.modifyChromosome();
     }
 
-    //Depreciated
+    // Depreciated
     public void shakeFaces(double pMutation) {
         rootNode.shakeDadFaceAndOrientation(pMutation);
         this.modifyChromosome();

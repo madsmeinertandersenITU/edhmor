@@ -34,7 +34,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
  *
  * ModuleSetFactory.java Created on 18/10/2015
  *
- * @author Andres Faiña <anfv  at itu.dk>
+ * @author Andres Faiña <anfv at itu.dk>
  */
 
 public abstract class ModuleSet {
@@ -55,7 +55,7 @@ public abstract class ModuleSet {
     protected int modulesTypeNumber;
 
     /**
-     * The maximum number of faces in one module 
+     * The maximum number of faces in one module
      */
     protected int maxFaceNumberInOneModule;
 
@@ -65,8 +65,8 @@ public abstract class ModuleSet {
     protected int modulesFacesNumber[];
 
     /**
-     * The number of connection faces which belong to the first body of the 
-     * module (base part of the module), the others belong to the actuators part 
+     * The number of connection faces which belong to the first body of the
+     * module (base part of the module), the others belong to the actuators part
      * (the part linked by a joint with the base part)
      */
     protected int modulesBaseFacesNumber[];
@@ -77,41 +77,45 @@ public abstract class ModuleSet {
     protected int[] moduleOrientations;
 
     /**
-     * The face where the module is connected to its parent for each type of 
-     * module and for each orientation  
+     * The face where the module is connected to its parent for each type of
+     * module and for each orientation
      */
     protected int[][] connectionFaceForEachOrientation;
 
     /**
-     * The angle that the module is rotated about the normal vector of its 
+     * The angle that the module is rotated about the normal vector of its
      * connection face for each type of module and for each orientation
      */
     protected double[][] rotationAboutTheNormalForEachOrientation;
 
     /**
-     * The vector from the origin of the module to the center of the face for 
+     * The vector from the origin of the module to the center of the face for
      * each type of module and for each face of the module
      */
     protected Vector3D[][] originFaceVector;
 
     /**
-     * The normal face vector for each type of module and for each face of the 
+     * The normal face vector for each type of module and for each face of the
      * module.
      */
     protected Vector3D[][] normalFaceVector;
-    
+
     /**
-     * A coplanar vector of the connector face for each type of module and for each face of the 
-     * module. This is an optional vector. If it is defined, the rotation is well defined and 
-     * the modules will be assembled correctly. If it is not defined, it can work well or not.
-     * Check all the possible combinations before trying to evolve morphologies. For example,
+     * A coplanar vector of the connector face for each type of module and for each
+     * face of the
+     * module. This is an optional vector. If it is defined, the rotation is well
+     * defined and
+     * the modules will be assembled correctly. If it is not defined, it can work
+     * well or not.
+     * Check all the possible combinations before trying to evolve morphologies. For
+     * example,
      * this vector is needed for the Atron modules.
      */
     protected Vector3D[][] coplanarFaceVector;
-    
+
     /**
-     * The symmetric face of one face. Take care, it can return -1 if no 
-     * symmetric face exists. 
+     * The symmetric face of one face. Take care, it can return -1 if no
+     * symmetric face exists.
      */
     protected int[][] symmetricFace;
 
@@ -120,8 +124,8 @@ public abstract class ModuleSet {
      */
     protected double modulesMass[];
 
-    //Control parameters
-    
+    // Control parameters
+
     /**
      * The maximum amplitude for each type of module
      */
@@ -132,28 +136,29 @@ public abstract class ModuleSet {
      */
     protected double[] modulesMaxAngularFrequency;
     /**
-     * The size of boundingBox for each type of module, it is represented as (width,height,longth).Units:meter
+     * The size of boundingBox for each type of module, it is represented as
+     * (width,height,longth).Units:meter
      */
     protected BoundingMethod boundingMethod;
     protected Vector3D[] boundingBox;
     protected double boundingSphereDiameter;
-    
+
     public enum BoundingMethod {
         BOX,
         SPHERE
     }
-    
+
     /**
-     * ModuleSet creates the arrays for the variables. It has to be called in 
-     * the first line of the constructor in the classes which inherit form this 
-     * class. 
+     * ModuleSet creates the arrays for the variables. It has to be called in
+     * the first line of the constructor in the classes which inherit form this
+     * class.
      * 
-     * @param modulesTypeNumber             the number of different types of 
-     *                                      modules
-     * @param maxFaceNumberInOneModule      the maximum number of faces in one 
-     *                                      module
-     * @param maxOrientations               the maximum number of orientations 
-     *                                      in one module
+     * @param modulesTypeNumber        the number of different types of
+     *                                 modules
+     * @param maxFaceNumberInOneModule the maximum number of faces in one
+     *                                 module
+     * @param maxOrientations          the maximum number of orientations
+     *                                 in one module
      */
     protected ModuleSet(int modulesTypeNumber, int maxFaceNumberInOneModule, int maxOrientations) {
         this.modulesTypeNumber = modulesTypeNumber;
@@ -172,7 +177,7 @@ public abstract class ModuleSet {
         modulesMaxAngularFrequency = new double[modulesTypeNumber];
         boundingBox = new Vector3D[modulesTypeNumber];
         symmetricFace = new int[modulesTypeNumber][maxFaceNumberInOneModule];
-        this.boundingMethod = BoundingMethod.BOX; //Default method
+        this.boundingMethod = BoundingMethod.BOX; // Default method
     }
 
     public int getModulesBaseFacesNumber(int type) {
@@ -204,12 +209,12 @@ public abstract class ModuleSet {
                 normalFaceVector[type][face].getY(),
                 normalFaceVector[type][face].getZ());
     }
-    
+
     public Vector3D getCoplanarFaceVector(int type, int face) {
-        if(coplanarFaceVector[type][face]!=null){
+        if (coplanarFaceVector[type][face] != null) {
             return new Vector3D(coplanarFaceVector[type][face].getX(),
-                coplanarFaceVector[type][face].getY(),
-                coplanarFaceVector[type][face].getZ());
+                    coplanarFaceVector[type][face].getY(),
+                    coplanarFaceVector[type][face].getZ());
         }
         return null;
     }
@@ -247,14 +252,14 @@ public abstract class ModuleSet {
     public boolean faceBelongsToBasePart(int moduleType, int faceNumber) {
         return faceNumber < getModulesBaseFacesNumber(moduleType);
     }
-    
+
     public Vector3D getboundingBox(int type) {
         return new Vector3D(boundingBox[type].getX(),
                 boundingBox[type].getY(),
                 boundingBox[type].getZ());
     }
-    
-    public int getSymmetricFace(int type, int face){
+
+    public int getSymmetricFace(int type, int face) {
         return symmetricFace[type][face];
     }
 

@@ -1,5 +1,8 @@
 package modules.control;
 
+import coppelia.FloatWA;
+import coppelia.IntWA;
+import coppelia.StringWA;
 import coppelia.remoteApi;
 import modules.ModuleSetFactory;
 import modules.evaluation.CoppeliaSimCreateRobot;
@@ -61,9 +64,33 @@ public class ConeSensorController extends RobotController {
                 targetPosition = (float) (amplitude
                         * Math.sin(angularFreq * time + phaseControl[module] / 180. * Math.PI));
             }
+            int ret;
+            try {
+                ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, moduleHandlers.get(module) + 2,
+                        targetPosition, remoteApi.simx_opmode_oneshot);
 
-            int ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, moduleHandlers.get(module) + 2,
-                    targetPosition, remoteApi.simx_opmode_oneshot);
+                int proximitySensorGroup = 13;
+                IntWA handles = new IntWA(1);
+                IntWA intData = new IntWA(2);
+                FloatWA floatData = new FloatWA(6);
+                StringWA stringData = new StringWA(1);
+                int operationMode = remoteApi.simx_opmode_blocking;
+
+                int result = coppeliaSimApi.simxGetObjectGroupData(clientID, proximitySensorGroup, 13, handles, intData,
+                        floatData, stringData, operationMode);
+                // Print out the retrieved data
+
+                System.out.println("Detection State: " + intData.getArray()[0]);
+                System.out.println("Detected Object Handle: " + intData.getArray()[1]);
+                System.out.println("Detected Point (x, y, z): " + floatData.getArray()[0] + ", "
+                        + floatData.getArray()[1] + ", " + floatData.getArray()[2]);
+                System.out.println("Surface Normal (nx, ny, nz): " + floatData.getArray()[3] + ", "
+                        + floatData.getArray()[4] + ", " + floatData.getArray()[5]);
+
+            } catch (Exception e) {
+                ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, moduleHandlers.get(module) + 1,
+                        targetPosition, remoteApi.simx_opmode_oneshot);
+            }
             if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
                 // System.out.format("Target position set: %d to %f\n", joint + 2,
                 // targetPosition);
