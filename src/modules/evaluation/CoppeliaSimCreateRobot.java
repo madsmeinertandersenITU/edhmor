@@ -48,6 +48,7 @@ public class CoppeliaSimCreateRobot {
     protected int clientID;
     private List<Integer> moduleHandlers;
     private List<Integer> forceSensorHandlers;
+    private List<Integer> proximitySensorHandlers;
     protected ModuleSet moduleSet;
     protected CalculateModulePositions robotFeatures;
     private boolean pauseandshow = false;
@@ -62,13 +63,13 @@ public class CoppeliaSimCreateRobot {
      * chromosome, giving the possibility of pausing between each added module
      * <p>
      *
-     * @param api the remote API library of the CoppeliaSim simulator
-     * @param clientID the CoppeliaSim client ID to communicate
+     * @param api              the remote API library of the CoppeliaSim simulator
+     * @param clientID         the CoppeliaSim client ID to communicate
      * @param chromosomeDouble the chromosome where the morphology and the
-     * control parameters are stored as doubles
-     * @param scene the scene to load in the simulator
-     * @param pauseandshow if true will pause every time a module is added and
-     * show its control parameters on the java console
+     *                         control parameters are stored as doubles
+     * @param scene            the scene to load in the simulator
+     * @param pauseandshow     if true will pause every time a module is added and
+     *                         show its control parameters on the java console
      *
      */
     public CoppeliaSimCreateRobot(remoteApi api, int clientID, double[] chromosomeDouble, String scene,
@@ -91,13 +92,14 @@ public class CoppeliaSimCreateRobot {
      * chromosome and specifying a fitness parameter
      * <p>
      *
-     * @param api the remote API library of the CoppeliaSim simulator
-     * @param clientID the CoppeliaSim client ID to communicate
+     * @param api              the remote API library of the CoppeliaSim simulator
+     * @param clientID         the CoppeliaSim client ID to communicate
      * @param chromosomeDouble the chromosome where the morphology and the
-     * control parameters are stored as doubles
-     * @param scene the scene to load in the simulator
-     * @param fP the value of the fitness parameter. It is used to change some
-     * properties of the environment
+     *                         control parameters are stored as doubles
+     * @param scene            the scene to load in the simulator
+     * @param fP               the value of the fitness parameter. It is used to
+     *                         change some
+     *                         properties of the environment
      *
      */
     CoppeliaSimCreateRobot(remoteApi api, int clientID, double[] chromosomeDouble, String scene) {
@@ -113,9 +115,9 @@ public class CoppeliaSimCreateRobot {
      * <p>
      *
      * @param clientID the CoppeliaSim client ID to communicate
-     * @param chromo the chromosome where the morphology and the control
-     * parameters are stored as doubles
-     * @param scene the scene to load in the simulator
+     * @param chromo   the chromosome where the morphology and the control
+     *                 parameters are stored as doubles
+     * @param scene    the scene to load in the simulator
      *
      */
     CoppeliaSimCreateRobot(int clientID, double[] chromo, String scene) {
@@ -135,8 +137,9 @@ public class CoppeliaSimCreateRobot {
     /**
      * Creates the robot in the CoppeliaSim simulator based on the chromosome array.
      * <p>
-     * @return true if the robot has been built correctly in the simulator, 
-     * false otherwise.
+     * 
+     * @return true if the robot has been built correctly in the simulator,
+     *         false otherwise.
      */
     public boolean createRobot() {
 
@@ -171,7 +174,7 @@ public class CoppeliaSimCreateRobot {
             } else {
                 System.err.format(
                         "CoppeliaSimCreateRobot (" + rank
-                        + "). Error loading the scene: Remote API function call returned with error code: %d\n",
+                                + "). Error loading the scene: Remote API function call returned with error code: %d\n",
                         ret);
                 System.err.println(
                         "CoppeliaSimCreateRobot. Check that the CoppeliaSim simulator is running and listening in the correct port.");
@@ -184,8 +187,8 @@ public class CoppeliaSimCreateRobot {
 
     private boolean robotAssembly() {
         double initialHeight = (Math.abs(robotFeatures.getMinPos().z) + 0.001);
-        double[] posIni = {0, 0, initialHeight};
-        double[] poszero = {0, 0, 0};
+        double[] posIni = { 0, 0, initialHeight };
+        double[] poszero = { 0, 0, 0 };
 
         boolean success = initAssembly(posIni, poszero);
 
@@ -202,13 +205,13 @@ public class CoppeliaSimCreateRobot {
             IntW moduleHandle = new IntW(0);
             int ret = coppeliaSimApi.simxLoadModel(clientID, "models/other/reference frame.ttm", 0, moduleHandle,
                     remoteApi.simx_opmode_oneshot_wait);
-            double[] pos = {1, 1, 0};
+            double[] pos = { 1, 1, 0 };
             moveModule(moduleHandle.getValue(), -1, pos);
 
             // Add a second reference frame very far away to deselect the other one
             ret = coppeliaSimApi.simxLoadModel(clientID, "models/other/reference frame.ttm", 0, moduleHandle,
                     remoteApi.simx_opmode_oneshot_wait);
-            double[] pos2 = {100, 100, 100};
+            double[] pos2 = { 100, 100, 100 };
             moveModule(moduleHandle.getValue(), -1, pos2);
         }
 
@@ -294,7 +297,8 @@ public class CoppeliaSimCreateRobot {
         int childFace = moduleSet.getConnectionFaceForEachOrientation(modType, orientation);
 
         // Rotate module to the correct orientation in CoppeliaSim
-        success &= rotateModule(moduleHandler, WORLD_COORD, new ModuleRotation(moduleRotation[module]).getEulerAngles());
+        success &= rotateModule(moduleHandler, WORLD_COORD,
+                new ModuleRotation(moduleRotation[module]).getEulerAngles());
 
         // Move module to the correct position in CoppeliaSim
         success &= moveModule(moduleHandler, WORLD_COORD, modulePosition[module]);
@@ -305,7 +309,7 @@ public class CoppeliaSimCreateRobot {
         success &= (forceSensor >= 0);
 
         if (normalParentFace.getZ() == 0) {
-            double[] forceSensorOrientation = {0, 0, 0};
+            double[] forceSensorOrientation = { 0, 0, 0 };
             if (normalParentFace.getY() == 0) {
                 forceSensorOrientation[1] = Math.PI / 2;
             } else {
@@ -369,7 +373,8 @@ public class CoppeliaSimCreateRobot {
         IntW moduleHandle = new IntW(0);
         // clientID,final String modelPathAndName, int options, IntW baseHandle, int
         // operationMode
-        int ret = coppeliaSimApi.simxLoadModel(clientID, modelPath, 0, moduleHandle, remoteApi.simx_opmode_oneshot_wait);
+        int ret = coppeliaSimApi.simxLoadModel(clientID, modelPath, 0, moduleHandle,
+                remoteApi.simx_opmode_oneshot_wait);
 
         if (ret == remoteApi.simx_return_ok) {
             // System.out.format("Model loaded correctly: %d\n",
@@ -380,7 +385,9 @@ public class CoppeliaSimCreateRobot {
                     + ": CoppeliaSimCreateRobot, addModule Function: Remote API function call returned with error code: %d\n",
                     ret);
             System.err
-                    .println(rank + ": CoppeliaSimCreateRobot, addModule Function: Check that the model path is correct: " + modelPath);
+                    .println(rank
+                            + ": CoppeliaSimCreateRobot, addModule Function: Check that the model path is correct: "
+                            + modelPath);
             return -1;
         }
     }
@@ -391,7 +398,8 @@ public class CoppeliaSimCreateRobot {
         IntW forceSensorHandle = new IntW(0);
         // clientID,final String modelPathAndName, int options, IntW baseHandle, int
         // operationMode
-        int ret = coppeliaSimApi.simxLoadModel(clientID, modelPath, 0, forceSensorHandle, remoteApi.simx_opmode_oneshot_wait);
+        int ret = coppeliaSimApi.simxLoadModel(clientID, modelPath, 0, forceSensorHandle,
+                remoteApi.simx_opmode_oneshot_wait);
 
         if (ret == remoteApi.simx_return_ok) {
             // System.out.format("Model loaded correctly: %d\n",
@@ -400,7 +408,7 @@ public class CoppeliaSimCreateRobot {
         } else {
             System.out.format(
                     "%d: CoppeliaSimCreateRobot, addForceSensor Function: Remote API "
-                    + "function call returned with error code: %d\n",
+                            + "function call returned with error code: %d\n",
                     rank, ret);
             System.err.println(rank + ": CoppeliaSimCreateRobot, addForceSensor Function: "
                     + "Check that the force sensor path is correct: "
@@ -454,7 +462,8 @@ public class CoppeliaSimCreateRobot {
         // int simxSetObjectParent(int clientID,int objectHandle,int
         // parentObject,boolean keepInPlace,int operationMode);
 
-        int ret = coppeliaSimApi.simxSetObjectParent(clientID, moduleHandler, parentHandler, true, remoteApi.simx_opmode_oneshot);
+        int ret = coppeliaSimApi.simxSetObjectParent(clientID, moduleHandler, parentHandler, true,
+                remoteApi.simx_opmode_oneshot);
         if (ret > remoteApi.simx_return_novalue_flag) {
             System.out.format("%d: setObjectParent Function: Remote API function"
                     + " call returned with error code: %d\n", rank, ret);
@@ -489,6 +498,10 @@ public class CoppeliaSimCreateRobot {
 
     public List<Integer> getForceSensorHandlers() {
         return forceSensorHandlers;
+    }
+
+    public List<Integer> getProximitySensorHandlers() {
+        return proximitySensorHandlers;
     }
 
     public double[] getAmplitudeControl() {

@@ -1,6 +1,8 @@
 package modules.control;
 
+import coppelia.BoolW;
 import coppelia.FloatWA;
+import coppelia.IntW;
 import coppelia.IntWA;
 import coppelia.StringWA;
 import coppelia.remoteApi;
@@ -65,41 +67,37 @@ public class ConeSensorController extends RobotController {
                         * Math.sin(angularFreq * time + phaseControl[module] / 180. * Math.PI));
             }
             int ret;
-            try {
+
+            if (module <= 0) {
                 ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, moduleHandlers.get(module) + 2,
                         targetPosition, remoteApi.simx_opmode_oneshot);
+                if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
+                    System.out.format("Updating module: " + module);
+                } else {
+                    System.out.format(
+                            "%d: updateJoints Function: Remote API function call returned with error code %d when updating joint %d at time%f\n",
+                            rank, ret, module, time);
 
-                int proximitySensorGroup = 13;
-                IntWA handles = new IntWA(1);
-                IntWA intData = new IntWA(2);
-                FloatWA floatData = new FloatWA(6);
-                StringWA stringData = new StringWA(1);
-                int operationMode = remoteApi.simx_opmode_blocking;
-
-                int result = coppeliaSimApi.simxGetObjectGroupData(clientID, proximitySensorGroup, 13, handles, intData,
-                        floatData, stringData, operationMode);
-                // Print out the retrieved data
-
-                System.out.println("Detection State: " + intData.getArray()[0]);
-                System.out.println("Detected Object Handle: " + intData.getArray()[1]);
-                System.out.println("Detected Point (x, y, z): " + floatData.getArray()[0] + ", "
-                        + floatData.getArray()[1] + ", " + floatData.getArray()[2]);
-                System.out.println("Surface Normal (nx, ny, nz): " + floatData.getArray()[3] + ", "
-                        + floatData.getArray()[4] + ", " + floatData.getArray()[5]);
-
-            } catch (Exception e) {
-                ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, moduleHandlers.get(module) + 1,
-                        targetPosition, remoteApi.simx_opmode_oneshot);
-            }
-            if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
-                // System.out.format("Target position set: %d to %f\n", joint + 2,
-                // targetPosition);
+                    return false;
+                }
             } else {
-                System.out.format(
-                        "%d: updateJoints Function: Remote API function call returned with error code %d when updating joint %d at time%f\n",
-                        rank, ret, module, time);
-                return false;
+                // IntW detectedObjectHandle = new IntW(2);
+                // FloatWA detectedPoint = new FloatWA(6);
+                // BoolW detectionState = new BoolW(true);
+                // FloatWA detectedSurfaceNormalVector = new FloatWA(6);
+                // int operationMode = remoteApi.simx_opmode_blocking;
+
+                // ret = coppeliaSimApi.simxReadProximitySensor(clientID,
+                // moduleHandlers.get(module) + 2,
+                // detectionState,
+                // detectedPoint, detectedObjectHandle, detectedSurfaceNormalVector,
+                // operationMode);
+                // System.out.println("Module: " + module);
+                // System.out.println("Handle: " + (moduleHandlers.get(module) + 2));
+
+                // System.out.println("Result: " + ret);
             }
+
         }
 
         coppeliaSimApi.simxPauseCommunication(clientID, false);

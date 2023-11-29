@@ -62,7 +62,7 @@ public class SensorTree extends Individual {
         rootNode = new Node(0, null);
         nodes.add(rootNode);
         // Create a child node of type 1
-        Node nodeType1 = new Node(1, null);
+        Node nodeType1 = new Node(1, rootNode);
         rootNode.addChildren(nodeType1);
         nodes.add(nodeType1);
 

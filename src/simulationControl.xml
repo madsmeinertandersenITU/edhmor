@@ -121,8 +121,8 @@
         
         <!-- Types of modules to use from the module set --> 
         <TypeModules>
-            <MaxValue>4</MaxValue>
-            <MinValue>4</MinValue>
+            <MaxValue>2</MaxValue>
+            <MinValue>1</MinValue>
         </TypeModules>
     </Robot>
     
