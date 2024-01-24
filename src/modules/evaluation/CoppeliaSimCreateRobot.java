@@ -24,8 +24,11 @@ import coppelia.IntW;
 import coppelia.IntWA;
 import coppelia.remoteApi;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.vecmath.Point3d;
 import modules.ModuleSet;
@@ -46,7 +49,7 @@ public class CoppeliaSimCreateRobot {
 
     protected remoteApi coppeliaSimApi;
     protected int clientID;
-    private List<Integer> moduleHandlers;
+    private Map<Integer, Integer> moduleHandlers;
     private List<Integer> forceSensorHandlers;
     private List<Integer> proximitySensorHandlers;
     protected ModuleSet moduleSet;
@@ -223,23 +226,25 @@ public class CoppeliaSimCreateRobot {
     }
 
     protected boolean initAssembly(double[] posIni, double[] poszero) {
-        moduleHandlers = new ArrayList<Integer>();
+        moduleHandlers = new HashMap<>(); // Change the type to Map
         forceSensorHandlers = new ArrayList<Integer>();
 
         int rootModuleHandler = addModule(0);
-        moduleHandlers.add(rootModuleHandler);
-
+        moduleHandlers.put(rootModuleHandler, 0); // Store in the map
         System.out.println("ADDING ROOT 232: " + rootModuleHandler);
 
         if (pauseandshow) {
-            moveModule(moduleHandlers.get(0), -1, posIni);
+            Set<Integer> keys = moduleHandlers.keySet();
+            List<Integer> keyList = new ArrayList<>(keys);
+            Integer keyNumber = keyList.get(0);
+            moveModule(keyNumber, -1, posIni);
             System.out.println("Just added module: 0");
             System.out.println("Amplitude control, AngularFreqControl, PhaseControl");
             System.out.print(robotFeatures.getAmplitudeControl()[0]);
             System.out.print(", " + robotFeatures.getAngularFreqControl()[0]);
             System.out.println(", " + robotFeatures.getPhaseControl()[0]);
             promptEnterKey();
-            moveModule(moduleHandlers.get(0), -1, poszero);
+            moveModule(keyNumber, -1, poszero);
         }
         return rootModuleHandler >= 0;
     }
@@ -260,18 +265,22 @@ public class CoppeliaSimCreateRobot {
         // Move the robot up
         // double[] posIni = {0, 0, initialHeight};
         // System.out.println("Moving robot up");
-        System.out.println("MOVING MODULE 263 " + moduleHandlers.get(0));
+        Set<Integer> keys = moduleHandlers.keySet();
+        List<Integer> keyList = new ArrayList<>(keys);
 
-        return moveModule(moduleHandlers.get(0), -1, posIni);
+        Integer firstKey = keyList.get(0);
+        System.out.println("MOVING MODULE 263 " + moduleHandlers.get(0));
+        return moveModule(firstKey, -1, posIni);
     }
 
     protected void shiftBaseTemp(double[] posIni, double[] poszero, boolean reset) {
+        Set<Integer> keys = moduleHandlers.keySet();
+        List<Integer> keyList = new ArrayList<>(keys);
+        Integer keyNumber = keyList.get(0);
         if (reset) {
-            System.out.println("MOVING MODULE 270 " + moduleHandlers.get(0));
-            moveModule(moduleHandlers.get(0), -1, poszero);
+            moveModule(keyNumber, -1, poszero);
         } else {
-            System.out.println("MOVING MODULE 273 " + moduleHandlers.get(0));
-            moveModule(moduleHandlers.get(0), -1, posIni);
+            moveModule(keyNumber, -1, posIni);
         }
 
     }
@@ -282,17 +291,27 @@ public class CoppeliaSimCreateRobot {
         Rotation[] moduleRotation = robotFeatures.getModuleRotation();
 
         int moduleHandler = addModule(module);
-        moduleHandlers.add(moduleHandler);
-        System.out.println("ADDING MODULE 286 " + moduleHandler);
-
         boolean success = moduleHandler >= 0;
 
         int[] moduleType = robotFeatures.getModuleType();
         int[] parentModule = robotFeatures.getParentModule();
         int modType = moduleType[module];
+        moduleHandlers.put(moduleHandler, modType);
+        System.out.println("ADDING MODULE 286 " + moduleHandler);
         int parentModuleType = moduleType[parentModule[module]];
         int conectionFace = robotFeatures.getDadFace()[module - 1] % moduleSet.getModulesFacesNumber(parentModuleType);
         int orientation = robotFeatures.getChildOrientation()[(module - 1)] % moduleSet.getModuleOrientations(modType);
+
+        int parentModuleValue = parentModule[module];
+
+        Integer result = null;
+
+        for (Map.Entry<Integer, Integer> entry : moduleHandlers.entrySet()) {
+            if (entry.getValue().equals(parentModuleValue)) {
+                result = entry.getKey();
+                break;
+            }
+        }
 
         // Get the vector which is normal to the face of the parent
         Vector3D normalParentFace = moduleSet.getNormalFaceVector(parentModuleType, conectionFace);
@@ -324,42 +343,55 @@ public class CoppeliaSimCreateRobot {
                 forceSensorOrientation[0] = Math.PI / 2;
             }
             // Rotate Force Sensor in CoppeliaSim
-            System.out.println("ROTATING MODULE 329 " + moduleHandlers.get(parentModule[module]));
+            Set<Integer> keys = moduleHandlers.keySet();
+            List<Integer> keyList = new ArrayList<>(keys);
 
-            success &= rotateModule(forceSensor, moduleHandlers.get(parentModule[module]), forceSensorOrientation);
+            int index = parentModule[module]; // Assuming this is a valid index
+            Integer parentModuleTypeValue = keyList.get(index);
+            System.out.println("ROTATING MODULE 329 " + result);
+
+            success &= rotateModule(forceSensor, result, forceSensorOrientation);
         }
         // Move Force Sensor in CoppeliaSim
         double posForceSensor[] = ofp.toArray();
-        System.out.println("MOVING MODULE 335 " + moduleHandlers.get(parentModule[module]));
 
-        success &= moveModule(forceSensor, moduleHandlers.get(parentModule[module]), posForceSensor);
+        Set<Integer> keys = moduleHandlers.keySet();
+        List<Integer> keyList = new ArrayList<>(keys);
+
+        int index = parentModule[module]; // Assuming this is a valid index
+        Integer parentModuleTypeValue = keyList.get(index);
+        System.out.println("MOVING MODULE 335 " + result);
+
+        success &= moveModule(forceSensor, result, posForceSensor);
 
         // Set the force sensor as a child of the parent module
         // FIXME: This code will not work in modules with 2 or more dof
         // First, calculate how many shapes and joints has a module
         // Atron modules have 6 (4 shapes, 1 joint and 1 dummy)
         // The rest have 4 (2 shapes, 1 joint and 1 dummy)
+        // We first calculate the number of shapes of the parent module
+        // substract one to remove force sensor between modules
+        Integer keyNumber = keyList.get(module - 1);
+        System.out.println(keyList);
+        System.out.println("CALC numberOfShapesAndJoints 344  GET " + keyNumber);
 
-        System.out.println("CALC numberOfShapesAndJoints 344  GET" + moduleHandlers.get(module));
+        System.out.println("CALC numberOfShapesAndJoints 344  GET PARENT " + result);
 
-        System.out.println("CALC numberOfShapesAndJoints 344  GET PARENT" + moduleHandlers.get(parentModule[module]));
-        int numberOfShapesAndJoints = moduleHandlers.get(module) - moduleHandlers.get(parentModule[module]) - 1;
-        // And calculate the offset of the shape to attach, if not attached to the base
-        // part
+        int numberOfShapesAndJoints = keyNumber - result - 1;
         int offset = 0;
         if (!moduleSet.faceBelongsToBasePart(moduleType[parentModule[module]], conectionFace)) {
             offset = numberOfShapesAndJoints / 2;
         }
-        System.out.println("SET OBJECT PARENT 355 " + moduleHandlers.get(parentModule[module]));
+        System.out.println("SET OBJECT PARENT 355 " + result);
 
-        success &= setObjectParent(forceSensor, moduleHandlers.get(parentModule[module]) + 1 + offset);
+        success &= setObjectParent(forceSensor, result + 1 + offset);
 
         // Set the child module as a child of the foce sensor
         // FIXME: This code will not work in modules with 2 or more dof
         if (moduleSet.faceBelongsToBasePart(modType, childFace)) {
             success &= setObjectParent(moduleHandler + 1, forceSensor);
         } else {
-            numberOfShapesAndJoints = forceSensor - moduleHandlers.get(module);
+            numberOfShapesAndJoints = forceSensor - moduleHandlers.get(keyNumber);
             if (numberOfShapesAndJoints == 4) {
                 success &= setObjectParent(moduleHandler + 3, forceSensor);
                 success &= setObjectParent(moduleHandler + 2, moduleHandler + 3);
@@ -374,16 +406,19 @@ public class CoppeliaSimCreateRobot {
 
         }
         if (pauseandshow) {
-            moveModule(moduleHandlers.get(0), -1, posIni);
+            Integer zeroKeyNumber = keyList.get(0);
+            moveModule(zeroKeyNumber, -1, posIni);
             System.out.println("Just added module: " + module);
             System.out.println("Amplitude control, AngularFreqControl, PhaseControl");
             System.out.print(robotFeatures.getAmplitudeControl()[module]);
             System.out.print(", " + robotFeatures.getAngularFreqControl()[module]);
             System.out.println(", " + robotFeatures.getPhaseControl()[module]);
             promptEnterKey();
-            moveModule(moduleHandlers.get(0), -1, poszero);
+            moveModule(zeroKeyNumber, -1, poszero);
         }
         return success;
+        // And calculate the offset of the shape to attach, if not attached to the base
+        // part
     }
 
     protected int addModule(int moduleNumber) {
@@ -511,7 +546,7 @@ public class CoppeliaSimCreateRobot {
         scanner.nextLine();
     }
 
-    public List<Integer> getModuleHandlers() {
+    public Map<Integer, Integer> getModuleHandlers() {
         return moduleHandlers;
     }
 

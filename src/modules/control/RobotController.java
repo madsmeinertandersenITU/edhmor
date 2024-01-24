@@ -22,6 +22,8 @@ package modules.control;
 
 import coppelia.remoteApi;
 import java.util.List;
+import java.util.Map;
+
 import modules.evaluation.CoppeliaSimCreateRobot;
 
 /**
@@ -35,7 +37,7 @@ public abstract class RobotController {
     protected remoteApi coppeliaSimApi;
     protected int clientID;
     protected CoppeliaSimCreateRobot robot;
-    protected List<Integer> moduleHandlers;
+    protected Map<Integer, Integer> moduleHandlers;
 
     protected RobotController(remoteApi api, int clientID, CoppeliaSimCreateRobot robot) {
         this.coppeliaSimApi = api;

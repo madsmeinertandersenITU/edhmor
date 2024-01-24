@@ -24,7 +24,10 @@ import coppelia.IntW;
 import coppelia.IntWA;
 import coppelia.remoteApi;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.vecmath.Vector3d;
 
@@ -120,9 +123,9 @@ public class DynamicFeaturesEvaluator {
                     handleString += handles + " ";
                 }
                 System.out.println(handleString);
-                List<Integer> moduleHandles = robot.getModuleHandlers();
+                Map<Integer, Integer> moduleHandles = robot.getModuleHandlers();
                 handleString = rank + ": Module handles: ";
-                for (int handles : moduleHandles) {
+                for (int handles : moduleHandles.keySet()) {
                     handleString += handles + " ";
                 }
                 System.out.println(handleString);
@@ -155,7 +158,11 @@ public class DynamicFeaturesEvaluator {
     private Vector3d getBaseRotation(int mode) {
         // int simxGetObjectPosition(int clientID,int objectHandle, int
         // relativeToObjectHandle, FloatWA position, int operationMode)
-        int baseHandle = robot.getModuleHandlers().get(0) + 1;
+        Set<Integer> keys = robot.getModuleHandlers().keySet();
+        List<Integer> keyList = new ArrayList<>(keys);
+
+        Integer firstKey = keyList.get(0);
+        int baseHandle = firstKey + 1;
         FloatWA orientation = new FloatWA(3);
 
         int ret = coppeliaSimApi.simxGetObjectOrientation(clientID, baseHandle, -1 /* Absolute position */, orientation,

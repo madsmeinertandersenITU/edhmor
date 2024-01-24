@@ -24,8 +24,13 @@ import coppelia.IntW;
 import coppelia.IntWA;
 import coppelia.StringWA;
 import coppelia.remoteApi;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import javax.vecmath.Vector3d;
 import modules.ModuleSetFactory;
 import modules.evaluation.CoppeliaSimCreateRobot;
@@ -122,7 +127,11 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
     private Vector3d getBasePose() {
         // int simxGetObjectPosition(int clientID,int objectHandle, int
         // relativeToObjectHandle, FloatWA position, int operationMode)
-        int baseHandle = robot.getModuleHandlers().get(0) + 1;
+        Set<Integer> keys = robot.getModuleHandlers().keySet();
+        List<Integer> keyList = new ArrayList<>(keys);
+        Integer keyNumber = keyList.get(0);
+
+        int baseHandle = keyNumber + 1;
         FloatWA position = new FloatWA(3);
         int ret = coppeliaSimApi.simxGetObjectPosition(clientID, baseHandle, -1 /* Absolute position */, position,
                 remoteApi.simx_opmode_oneshot_wait);
@@ -138,7 +147,7 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
 
     private Vector3d getCenterOfMass() {
 
-        List<Integer> modules = robot.getModuleHandlers();
+        Map<Integer, Integer> modules = robot.getModuleHandlers();
         IntWA handles = new IntWA(1);
 
         FloatWA floatData = new FloatWA(modules.size() * 3);
