@@ -20,7 +20,7 @@ public class EmergeProximitySensorModuleSet extends Emerge18FlatBaseModuleSet {
         // the file to load in the simulator)
         // moduleName[0] = "initialemergeModule";
         // moduleName[0] = "flatBase";
-        moduleName[2] = "ConeProximitySensorModule";
+        moduleName[2] = "RaySensor";
         // define the different properties
         // number of faces for each type of module
 

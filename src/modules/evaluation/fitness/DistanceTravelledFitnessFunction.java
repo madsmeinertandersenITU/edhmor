@@ -34,7 +34,7 @@ import modules.util.SimulationConfiguration;
 /**
  * DistanceTravelledFitnessFunction.java Created on 20/10/2016
  *
- * @author Andres Faiña <anfv  at itu.dk>
+ * @author Andres Faiña <anfv at itu.dk>
  */
 public class DistanceTravelledFitnessFunction extends FitnessFunction {
 
@@ -103,10 +103,12 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
 
     private Vector3d getPose() {
         if (SimulationConfiguration.getPoseFitness().toLowerCase().contains("base")) {
-            //System.out.println("BASE selected: " + SimulationConfiguration.getPoseFitness());
+            // System.out.println("BASE selected: " +
+            // SimulationConfiguration.getPoseFitness());
             return getBasePose();
         } else if (SimulationConfiguration.getPoseFitness().toLowerCase().contains("com")) {
-            //System.out.println("COM selected: " + SimulationConfiguration.getPoseFitness());
+            // System.out.println("COM selected: " +
+            // SimulationConfiguration.getPoseFitness());
             return getCenterOfMass();
         } else {
             System.err.println("Pose for the Fitness Function not well defined!");
@@ -118,12 +120,14 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
     }
 
     private Vector3d getBasePose() {
-        //int simxGetObjectPosition(int clientID,int objectHandle, int relativeToObjectHandle, FloatWA position, int operationMode)
+        // int simxGetObjectPosition(int clientID,int objectHandle, int
+        // relativeToObjectHandle, FloatWA position, int operationMode)
         int baseHandle = robot.getModuleHandlers().get(0) + 1;
         FloatWA position = new FloatWA(3);
-        int ret = coppeliaSimApi.simxGetObjectPosition(clientID, baseHandle, -1 /*Absolute position*/, position, remoteApi.simx_opmode_oneshot_wait);
+        int ret = coppeliaSimApi.simxGetObjectPosition(clientID, baseHandle, -1 /* Absolute position */, position,
+                remoteApi.simx_opmode_oneshot_wait);
         if (ret == remoteApi.simx_return_ok) {
-            //System.out.format("Obtaining positions of the objects: \n");
+            // System.out.format("Obtaining positions of the objects: \n");
         } else {
             System.out.format("getBasePos Function: Remote API function call returned with error code: %d\n", ret);
             return null;
@@ -138,22 +142,24 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
         IntWA handles = new IntWA(1);
 
         FloatWA floatData = new FloatWA(modules.size() * 3);
-        int ret = coppeliaSimApi.simxGetObjectGroupData(clientID, remoteApi.sim_object_shape_type, 3 /*Absolute position*/, handles, new IntWA(1) /*intData*/, floatData, new StringWA(1) /*stringData*/, remoteApi.simx_opmode_oneshot_wait);
+        int ret = coppeliaSimApi.simxGetObjectGroupData(clientID, remoteApi.sim_object_shape_type,
+                3 /* Absolute position */, handles, new IntWA(1) /* intData */, floatData,
+                new StringWA(1) /* stringData */, remoteApi.simx_opmode_oneshot_wait);
         if (ret == remoteApi.simx_return_ok) {
-            //System.out.format("Obtaining positions of the objects: \n");
+            // System.out.format("Obtaining positions of the objects: \n");
         } else {
             System.out.format("getCenterOfMass Function: Remote API function call returned with error code: %d\n", ret);
             return null;
         }
 
-        //Order the handles array
+        // Order the handles array
         int[] orderedHandles = handles.getArray();
         Arrays.sort(orderedHandles);
 
         int[] modulesType = robot.getModuleType();
         double x = 0, y = 0, z = 0, robotMass = 0;
-        //TODO: The center of mass needs to take into account the two parts of 
-        //the module (base and actuator). We need to know the mass for 
+        // TODO: The center of mass needs to take into account the two parts of
+        // the module (base and actuator). We need to know the mass for
         for (int i = 0; i < modules.size(); i++) {
             double moduleMass = ModuleSetFactory.getModulesSet().getModulesMass(modulesType[i]);
 
@@ -165,7 +171,7 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
         }
 
         Vector3d com = new Vector3d(x / robotMass, y / robotMass, z / robotMass);
-        //System.out.println("Center of mass coordinates: " + com.toString());
+        // System.out.println("Center of mass coordinates: " + com.toString());
         return com;
 
     }

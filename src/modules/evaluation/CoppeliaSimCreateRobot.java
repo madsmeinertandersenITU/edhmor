@@ -327,7 +327,7 @@ public class CoppeliaSimCreateRobot {
         // First, calculate how many shapes and joints has a module
         // Atron modules have 6 (4 shapes, 1 joint and 1 dummy)
         // The rest have 4 (2 shapes, 1 joint and 1 dummy)
-        int numberOfShapesAndJoints = forceSensor - moduleHandlers.get(module);
+        int numberOfShapesAndJoints = moduleHandlers.get(module) - moduleHandlers.get(parentModule[module]) - 1;
         // And calculate the offset of the shape to attach, if not attached to the base
         // part
         int offset = 0;
@@ -341,6 +341,7 @@ public class CoppeliaSimCreateRobot {
         if (moduleSet.faceBelongsToBasePart(modType, childFace)) {
             success &= setObjectParent(moduleHandler + 1, forceSensor);
         } else {
+            numberOfShapesAndJoints = forceSensor - moduleHandlers.get(module);
             if (numberOfShapesAndJoints == 4) {
                 success &= setObjectParent(moduleHandler + 3, forceSensor);
                 success &= setObjectParent(moduleHandler + 2, moduleHandler + 3);

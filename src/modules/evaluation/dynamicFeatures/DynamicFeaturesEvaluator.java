@@ -35,7 +35,7 @@ import mpi.MPI;
 /**
  * DynamicFeaturesEvaluator.java Created on 23/10/2019
  *
- * @author Andres Faiña <anfv  at itu.dk>
+ * @author Andres Faiña <anfv at itu.dk>
  */
 public class DynamicFeaturesEvaluator {
 
@@ -58,7 +58,7 @@ public class DynamicFeaturesEvaluator {
     }
 
     public boolean init() {
-        //Start the streaming of the base 
+        // Start the streaming of the base
         return getBaseRotation(remoteApi.simx_opmode_streaming) != null;
     }
 
@@ -74,16 +74,16 @@ public class DynamicFeaturesEvaluator {
     }
 
     public boolean end() {
-        //Stop the streaming of the base
+        // Stop the streaming of the base
         boolean success = getBaseRotation(remoteApi.simx_opmode_discontinue) != null;
-        //We need a blocking operation after this, it is done in getBrokenConnections
+        // We need a blocking operation after this, it is done in getBrokenConnections
 
         int nbc = getBrokenConnections();
         this.dFeatures.setBrokenConnections(nbc);
 
         double balance = (accumRoll + accumPitch) / this.time;
         this.dFeatures.setBalance(balance);
-        return (success && nbc>=0);
+        return (success && nbc >= 0);
     }
 
     public DynamicFeatures getDynamicFeatures() {
@@ -91,7 +91,8 @@ public class DynamicFeaturesEvaluator {
     }
 
     private int getBrokenConnections() {
-        //int simxReadForceSensor(int clientID,int forceSensorHandle,IntWA state,FloatWA forceVector,FloatWA torqueVector,int operationMode)
+        // int simxReadForceSensor(int clientID,int forceSensorHandle,IntWA
+        // state,FloatWA forceVector,FloatWA torqueVector,int operationMode)
 
         int nbc = 0;
         List<Integer> forceSensors = robot.getForceSensorHandlers();
@@ -101,7 +102,8 @@ public class DynamicFeaturesEvaluator {
             FloatWA forceVector = new FloatWA(3);
             FloatWA torqueVector = new FloatWA(3);
             IntW state = new IntW(0);
-            int ret = coppeliaSimApi.simxReadForceSensor(clientID, forceSensorHandle, state, forceVector, torqueVector, remoteApi.simx_opmode_oneshot_wait);
+            int ret = coppeliaSimApi.simxReadForceSensor(clientID, forceSensorHandle, state, forceVector, torqueVector,
+                    remoteApi.simx_opmode_oneshot_wait);
             if (ret == remoteApi.simx_return_ok) {
                 boolean isBroken = BigInteger.valueOf(state.getValue()).testBit(1);
                 if (isBroken) {
@@ -125,39 +127,48 @@ public class DynamicFeaturesEvaluator {
                 }
                 System.out.println(handleString);
 
-                //And check the handles of the scene
+                // And check the handles of the scene
                 // Now try to retrieve data in a blocking fashion (i.e. a service call):
                 IntWA objectHandles = new IntWA(1);
-                ret = coppeliaSimApi.simxGetObjects(clientID, remoteApi.sim_handle_all, objectHandles, remoteApi.simx_opmode_blocking);
+                ret = coppeliaSimApi.simxGetObjects(clientID, remoteApi.sim_handle_all, objectHandles,
+                        remoteApi.simx_opmode_blocking);
                 if (ret == remoteApi.simx_return_ok) {
-                    System.out.format("%d: Number of objects in the scene: %d\n", rank, objectHandles.getArray().length);
+                    System.out.format("%d: Number of objects in the scene: %d\n", rank,
+                            objectHandles.getArray().length);
                     handleString = rank + ": Object handles in the scene: ";
                     for (int i = 0; i < objectHandles.getArray().length; i++) {
                         handleString += objectHandles.getArray()[i] + " ";
                         System.out.println(handleString);
                     }
                 } else {
-                    System.out.format("%d: Unable to get the object handles in the scene. Remote API function call returned with error code: %d\n", rank, ret);
+                    System.out.format(
+                            "%d: Unable to get the object handles in the scene. Remote API function call returned with error code: %d\n",
+                            rank, ret);
                 }
                 return -1;
             }
         }
-        //System.out.println(nbc + " connections broken.");
+        // System.out.println(nbc + " connections broken.");
         return nbc;
     }
 
     private Vector3d getBaseRotation(int mode) {
-        //int simxGetObjectPosition(int clientID,int objectHandle, int relativeToObjectHandle, FloatWA position, int operationMode)
+        // int simxGetObjectPosition(int clientID,int objectHandle, int
+        // relativeToObjectHandle, FloatWA position, int operationMode)
         int baseHandle = robot.getModuleHandlers().get(0) + 1;
         FloatWA orientation = new FloatWA(3);
 
-        int ret = coppeliaSimApi.simxGetObjectOrientation(clientID, baseHandle, -1 /*Absolute position*/, orientation, mode);
+        int ret = coppeliaSimApi.simxGetObjectOrientation(clientID, baseHandle, -1 /* Absolute position */, orientation,
+                mode);
         if ((ret != remoteApi.simx_return_ok && mode == remoteApi.simx_opmode_buffer)
                 || ret > remoteApi.simx_return_novalue_flag) {
-            System.out.format("%d:  getBaseRotation Function: Remote API function call returned with error code: %d\n", rank, ret);
+            System.out.format("%d:  getBaseRotation Function: Remote API function call returned with error code: %d\n",
+                    rank, ret);
             return null;
         }
 
-        return new Vector3d(orientation.getArray()[0], orientation.getArray()[1], orientation.getArray()[2]); //alpha, beta, gamma
+        return new Vector3d(orientation.getArray()[0], orientation.getArray()[1], orientation.getArray()[2]); // alpha,
+                                                                                                              // beta,
+                                                                                                              // gamma
     }
 }

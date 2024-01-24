@@ -46,7 +46,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 /**
  * CoppeliaSimulator.java Created on 27/03/2016
  *
- * @author Andres Faiña <anfv  at itu.dk>
+ * @author Andres Faiña <anfv at itu.dk>
  */
 public class CoppeliaSimulator {
 
@@ -68,39 +68,40 @@ public class CoppeliaSimulator {
             rank = MPI.COMM_WORLD.Rank();
         }
 
-        //Try the port by default (trying to connect to running simulator)
+        // Try the port by default (trying to connect to running simulator)
         port = SimulationConfiguration.getCoppeliaSimStartingPort();
         if (SimulationConfiguration.isUseMPI()) {
-            port += MPI.COMM_WORLD.Rank(); 
-            //port*= -1; 
+            port += MPI.COMM_WORLD.Rank();
+            // port*= -1;
         }
 
-        //Try to connect to an existing open CoppeliaSimulator
+        // Try to connect to an existing open CoppeliaSimulator
         connect2CoppeliaSim();
-        
 
-        while (clientID == -1 && attempt < SimulationConfiguration.getAttempts()+1) {
-            System.out.println("PROCESS " + rank + ": Failed connecting to remote API server on port " + port + "; attempt: " + attempt);
-            
-            //Call stop simulator using old port number
+        while (clientID == -1 && attempt < SimulationConfiguration.getAttempts() + 1) {
+            System.out.println("PROCESS " + rank + ": Failed connecting to remote API server on port " + port
+                    + "; attempt: " + attempt);
+
+            // Call stop simulator using old port number
             stop();
-            
+
             attempt++;
             int nSimulators = 1;
             if (SimulationConfiguration.isUseMPI()) {
                 nSimulators = MPI.COMM_WORLD.Size();
             }
 
-            //Update the port of the simulator and launch and connect again
+            // Update the port of the simulator and launch and connect again
             port += nSimulators * (attempt + 1);
             System.out.println("PROCESS " + rank + ": Launching CoppeliaSim and restarting remote API"
                     + " server on port " + port + ", nSimulators: " + nSimulators + ", attempt: " + attempt);
             launchCoppeliaSim(jobId);
             connect2CoppeliaSim();
-            
+
         }
         if (clientID == -1) {
-            System.out.println("PROCESS "  + rank + ": Program ended! Failed to connect to CoppeliaSim on port " + port + "; after " + attempt + " attempts. ");
+            System.out.println("PROCESS " + rank + ": Program ended! Failed to connect to CoppeliaSim on port " + port
+                    + "; after " + attempt + " attempts. ");
             killEverythingAndExit();
         } else {
             System.out.println("PROCESS " + rank + ": Simulator launched and connected in attempt: " + attempt);
@@ -111,7 +112,7 @@ public class CoppeliaSimulator {
     }
 
     public void killEverythingAndExit() {
-        MPI.COMM_WORLD.Abort(-1);//Try to close all the programs
+        MPI.COMM_WORLD.Abort(-1);// Try to close all the programs
         pkillCoppeliaSim();
         try {
             Thread.sleep(2000);
@@ -140,7 +141,7 @@ public class CoppeliaSimulator {
             if (SystemUtils.IS_OS_WINDOWS) {
                 processArguments.add(coppeliaSimPath + "\\coppeliaSim.exe");
             } else {
-                //SystemUtils.IS_OS_LINUX
+                // SystemUtils.IS_OS_LINUX
                 processArguments.add("stdbuf");
                 processArguments.add("-o0");
                 processArguments.add("-e0");
@@ -151,16 +152,16 @@ public class CoppeliaSimulator {
                     processArguments.add(SimulationConfiguration.getSingularityPath());
                 }
 
-                //Now, we use this line in the .bashrc file
-                //export QT_QPA_PLATFORM=offscreen
-                //Therefore, we not need to use xvfb-run
-//                if (SimulationConfiguration.isUseMPI()) {
-//                    processArguments.add("xvfb-run");
-//                    processArguments.add("-a");
-//                }
-                //We call directly CoppeliaSim and not soppeliasim.sh
-                //Be sure that the COPPELIASIM_HOME is added to LD_LIBRARY_PATH
-                //processArguments.add(System.getenv("COPPELIASIM_HOME") + "/coppeliaSim");
+                // Now, we use this line in the .bashrc file
+                // export QT_QPA_PLATFORM=offscreen
+                // Therefore, we not need to use xvfb-run
+                // if (SimulationConfiguration.isUseMPI()) {
+                // processArguments.add("xvfb-run");
+                // processArguments.add("-a");
+                // }
+                // We call directly CoppeliaSim and not soppeliasim.sh
+                // Be sure that the COPPELIASIM_HOME is added to LD_LIBRARY_PATH
+                // processArguments.add(System.getenv("COPPELIASIM_HOME") + "/coppeliaSim");
                 processArguments.add(System.getenv("COPPELIASIM_HOME") + "/coppeliaSim");
             }
 
@@ -169,30 +170,33 @@ public class CoppeliaSimulator {
             }
             processArguments.add("-gREMOTEAPISERVERSERVICE_" + port + "_FALSE_TRUE");
 
-            /*Initialize a v-rep simulator based on the starNumber parameter */
+            /* Initialize a v-rep simulator based on the starNumber parameter */
             try {
                 System.out.println("PROCESS " + rank + ": Starting simulator with arguments: " + processArguments);
-                ProcessBuilder qq = new ProcessBuilder(processArguments);//, "-h"/home/rodr/EvolWork/Modular/Maze/MazeBuilderR01.ttt");
+                ProcessBuilder qq = new ProcessBuilder(processArguments);// ,
+                                                                         // "-h"/home/rodr/EvolWork/Modular/Maze/MazeBuilderR01.ttt");
 
                 qq.directory(new File(coppeliaSimPath));
-                qq.redirectErrorStream(true); //Error and std output redirected to the same pipe
+                qq.redirectErrorStream(true); // Error and std output redirected to the same pipe
 
-                //CoppeliaSim error and standart output redirected to the output of the 
-                //program. To redirect to a file use these line 
+                // CoppeliaSim error and standart output redirected to the output of the
+                // program. To redirect to a file use these line
                 File log = new File("coppeliaSim_output.txt");
                 qq.redirectOutput(ProcessBuilder.Redirect.appendTo(log));
-                //qq.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-                
-                simulator = qq.start();
-//                outputGobbler = new StreamGobbler(simulator.getInputStream(), "COPPELIASIM_" + port + "_OUTPUT");
-//                errorGobbler = new StreamGobbler(simulator.getErrorStream(), "COPPELIASIM_" + port + "_ERROR");
-                // kick them off
-//                errorGobbler.start();
-//                outputGobbler.start();
+                // qq.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
-//            if (MPI.COMM_WORLD.Rank() == 0) {
-                Thread.sleep(10000); //wait for the coppeliaSim Api simulators
-//            }
+                simulator = qq.start();
+                // outputGobbler = new StreamGobbler(simulator.getInputStream(), "COPPELIASIM_"
+                // + port + "_OUTPUT");
+                // errorGobbler = new StreamGobbler(simulator.getErrorStream(), "COPPELIASIM_" +
+                // port + "_ERROR");
+                // kick them off
+                // errorGobbler.start();
+                // outputGobbler.start();
+
+                // if (MPI.COMM_WORLD.Rank() == 0) {
+                Thread.sleep(10000); // wait for the coppeliaSim Api simulators
+                // }
 
             } catch (IOException e) {
                 System.out.println(e.toString());
@@ -214,30 +218,35 @@ public class CoppeliaSimulator {
         if (clientID == -1) {
             System.out.println("PROCESS " + rank + ": CoppeliaSim connection was NOT started in port " + port);
         } else {
-            System.out.println("PROCESS " + rank + ": CoppeliaSim connection started in port " + port + " with clientID " + clientID);
+            System.out.println("PROCESS " + rank + ": CoppeliaSim connection started in port " + port
+                    + " with clientID " + clientID);
             IntW pingTime = new IntW(0);
             coppeliaSimApi.simxGetPingTime(clientID, pingTime);
             System.out.println("PROCESS " + rank + ": Ping Time (1): " + pingTime.getValue());
             coppeliaSimApi.simxGetPingTime(clientID, pingTime);
             System.out.println("PROCESS " + rank + ": Ping Time (2): " + pingTime.getValue());
             IntWA objectHandles = new IntWA(1);
-            int ret = coppeliaSimApi.simxGetObjects(clientID, coppeliaSimApi.sim_handle_all, objectHandles, coppeliaSimApi.simx_opmode_blocking);
-            System.out.println("PROCESS " + rank + ": Objects in scene: " + objectHandles.getArray().length + ", return code: " + ret);
+            int ret = coppeliaSimApi.simxGetObjects(clientID, coppeliaSimApi.sim_handle_all, objectHandles,
+                    coppeliaSimApi.simx_opmode_blocking);
+            System.out.println("PROCESS " + rank + ": Objects  in scene: " + objectHandles.getArray().length
+                    + ", return code: " + ret);
         }
     }
 
     public void stop() {
 
         System.out.println("PROCESS " + rank + ": Stopping CoppeliaSim at port : " + port);
-        // First close the connection to V-REP:	
+        // First close the connection to V-REP:
 
         int exitStatus = -1000;
         if (simulator != null) {
             try {
                 if (simulator.toHandle().destroyForcibly()) {
-                    System.out.println("PROCESS " + rank + ": Process forcibly destroyed correctly CoppeliaSim at port : " + port);
+                    System.out.println(
+                            "PROCESS " + rank + ": Process forcibly destroyed correctly CoppeliaSim at port : " + port);
                 } else {
-                    System.out.println("PROCESS " + rank + ": Process did NOT forcibly destroy CoppeliaSim at port : " + port);
+                    System.out.println(
+                            "PROCESS " + rank + ": Process did NOT forcibly destroy CoppeliaSim at port : " + port);
                 }
                 simulator.destroy();
                 simulator.getErrorStream().close();
@@ -250,7 +259,7 @@ public class CoppeliaSimulator {
                         System.out.println("PROCESS " + rank + ": Process finished");
                         if (!SystemUtils.IS_OS_WINDOWS) {
 
-//                            killUnixProcess(simulator);
+                            // killUnixProcess(simulator);
                         }
 
                     } catch (InterruptedException ex) {
@@ -265,13 +274,13 @@ public class CoppeliaSimulator {
                 Logger.getLogger(CoppeliaSimulator.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("PROCESS " + rank + ": CoppeliaSim finished with code: " + exitStatus);
-//        if (!SystemUtils.IS_OS_WINDOWS && MPI.COMM_WORLD.Rank() == 0) {
-////            System.out.println(" (" + rank + ")Ps ux 2: ");
-////            getPsUX();
-//        }
+            // if (!SystemUtils.IS_OS_WINDOWS && MPI.COMM_WORLD.Rank() == 0) {
+            //// System.out.println(" (" + rank + ")Ps ux 2: ");
+            //// getPsUX();
+            // }
 
             try {
-                Thread.sleep(2000); //wait for the coppeliaSimApi simulators
+                Thread.sleep(2000); // wait for the coppeliaSimApi simulators
             } catch (InterruptedException ex) {
                 Logger.getLogger(CoppeliaSimulator.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -286,34 +295,37 @@ public class CoppeliaSimulator {
         long pid = process.pid();
         System.out.println(process.getClass().getName() + ", pid: " + pid);
         return pid;
-//        if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
-//            Class cl = process.getClass();
-//            Field field = cl.getDeclaredField("pid");
-//            field.setAccessible(true);
-//            Object pidObject = field.get(process);
-//            return (Integer) pidObject;
-//        } else {
-//            throw new IllegalArgumentException("Needs to be a UNIXProcess");
-//        }
+        // if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
+        // Class cl = process.getClass();
+        // Field field = cl.getDeclaredField("pid");
+        // field.setAccessible(true);
+        // Object pidObject = field.get(process);
+        // return (Integer) pidObject;
+        // } else {
+        // throw new IllegalArgumentException("Needs to be a UNIXProcess");
+        // }
     }
 
     public void killUnixProcess(Process process) throws Exception {
         long pid = getUnixPID(process);
         System.out.println("PROCESS " + rank + ": PID of the CoppeliaSim is: " + pid);
-        //return Runtime.getRuntime().exec("pkill -TERM -P " + pid).waitFor();
-        //return Runtime.getRuntime().exec("kill -- -$(ps -o pgid= "+ pid +" | grep -o '[0-9]*')").waitFor();
+        // return Runtime.getRuntime().exec("pkill -TERM -P " + pid).waitFor();
+        // return Runtime.getRuntime().exec("kill -- -$(ps -o pgid= "+ pid +" | grep -o
+        // '[0-9]*')").waitFor();
 
-//        System.out.println(" (" + rank + ")Stopping CoppeliaSim at port : " + port);
-//        if(process.toHandle().destroy())
-//        {
-//            System.out.println(" (" + rank + ")Process destroyed correctly CoppeliaSim at port : " + port);
-//        }else{
+        // System.out.println(" (" + rank + ")Stopping CoppeliaSim at port : " + port);
+        // if(process.toHandle().destroy())
+        // {
+        // System.out.println(" (" + rank + ")Process destroyed correctly CoppeliaSim at
+        // port : " + port);
+        // }else{
         if (process.toHandle().destroyForcibly()) {
-            System.out.println("PROCESS " + rank + ": Process forcibly destroyed correctly CoppeliaSim at port : " + port);
+            System.out.println(
+                    "PROCESS " + rank + ": Process forcibly destroyed correctly CoppeliaSim at port : " + port);
         } else {
             System.out.println("PROCESS " + rank + ": Process did NOT forcibly destroy CoppeliaSim at port : " + port);
         }
-//        }
+        // }
     }
 
     public void pkillCoppeliaSim() {
@@ -383,7 +395,7 @@ public class CoppeliaSimulator {
                 strErr += brStdErr.readLine();
                 System.err.println(strOut);
             }
-            //str = strOut + strErr;
+            // str = strOut + strErr;
             brStdOut.close();
             brStdErr.close();
 
@@ -426,17 +438,18 @@ public class CoppeliaSimulator {
                 System.err.println(objectName + " object not found in CoppeliaSim scene!");
             } else {
 
-                //Set the rotation
+                // Set the rotation
                 if (rot != null) {
-//                    final FloatWA rotCoppelia = new FloatWA(4);
-//                    rotCoppelia.getArray()[0] = (float) rot.getQ1();
-//                    rotCoppelia.getArray()[1] = (float) rot.getQ2();
-//                    rotCoppelia.getArray()[2] = (float) rot.getQ3();
-//                    rotCoppelia.getArray()[3] = (float) rot.getQ0();
-//                    err = coppeliaSimApi.simxSetObjectQuaternion(clientID, sensorHandle.getValue(),
-//                            -1, rotCoppelia, remoteApi.simx_opmode_blocking);
+                    // final FloatWA rotCoppelia = new FloatWA(4);
+                    // rotCoppelia.getArray()[0] = (float) rot.getQ1();
+                    // rotCoppelia.getArray()[1] = (float) rot.getQ2();
+                    // rotCoppelia.getArray()[2] = (float) rot.getQ3();
+                    // rotCoppelia.getArray()[3] = (float) rot.getQ0();
+                    // err = coppeliaSimApi.simxSetObjectQuaternion(clientID,
+                    // sensorHandle.getValue(),
+                    // -1, rotCoppelia, remoteApi.simx_opmode_blocking);
 
-                    //Trick to get the right eule angles
+                    // Trick to get the right eule angles
                     ModuleRotation modRot = new ModuleRotation(rot);
                     final FloatWA eulerAngles = new FloatWA(3);
                     eulerAngles.getArray()[0] = (float) modRot.getEulerAngles()[0];
@@ -450,7 +463,7 @@ public class CoppeliaSimulator {
                     }
                 }
 
-                //Set position
+                // Set position
                 if (posVec != null) {
                     FloatWA pos = new FloatWA(3);
                     pos.getArray()[0] = (float) posVec.getX();
@@ -536,7 +549,8 @@ public class CoppeliaSimulator {
 
     public int getParentHandle(int childObjectHandle) {
         IntW parentHandle = new IntW(0);
-        int err = coppeliaSimApi.simxGetObjectParent(clientID, childObjectHandle, parentHandle, remoteApi.simx_opmode_blocking);
+        int err = coppeliaSimApi.simxGetObjectParent(clientID, childObjectHandle, parentHandle,
+                remoteApi.simx_opmode_blocking);
         if (err != remoteApi.simx_error_noerror) {
             System.err.println("Error when getting the parent handle! err=" + err);
         }
@@ -545,7 +559,11 @@ public class CoppeliaSimulator {
 
 }
 
-/*Code taken from http://www.javaworld.com/article/2071275/core-java/when-runtime-exec---won-t.html*/
+/*
+ * Code taken from
+ * http://www.javaworld.com/article/2071275/core-java/when-runtime-exec---won-t.
+ * html
+ */
 class StreamGobbler extends Thread {
 
     InputStream is;

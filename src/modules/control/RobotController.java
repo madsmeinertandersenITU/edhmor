@@ -27,22 +27,23 @@ import modules.evaluation.CoppeliaSimCreateRobot;
 /**
  * RobotController.java
  * Created on 09/11/2015
- * @author Andres Faiña <anfv  at itu.dk>
+ * 
+ * @author Andres Faiña <anfv at itu.dk>
  */
 public abstract class RobotController {
-    
+
     protected remoteApi coppeliaSimApi;
     protected int clientID;
     protected CoppeliaSimCreateRobot robot;
     protected List<Integer> moduleHandlers;
-    
-    protected RobotController(remoteApi api, int clientID, CoppeliaSimCreateRobot robot){
+
+    protected RobotController(remoteApi api, int clientID, CoppeliaSimCreateRobot robot) {
         this.coppeliaSimApi = api;
         this.clientID = clientID;
         this.robot = robot;
         moduleHandlers = robot.getModuleHandlers();
     }
-    
+
     public abstract boolean updateJoints(double time);
 
 }
