@@ -68,36 +68,17 @@ public class ConeSensorController extends RobotController {
             }
             int ret;
 
-            if (module <= 0) {
-                ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, moduleHandlers.get(module) + 2,
-                        targetPosition, remoteApi.simx_opmode_oneshot);
-                if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
-                    System.out.format("Updating module: " + module);
-                } else {
-                    System.out.format(
-                            "%d: updateJoints Function: Remote API function call returned with error code %d when updating joint %d at time%f\n",
-                            rank, ret, module, time);
-
-                    return false;
-                }
+            ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, moduleHandlers.get(module) + 2,
+                    targetPosition, remoteApi.simx_opmode_oneshot);
+            if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
+                System.out.format("Updating module: " + module);
             } else {
-                // IntW detectedObjectHandle = new IntW(2);
-                // FloatWA detectedPoint = new FloatWA(6);
-                // BoolW detectionState = new BoolW(true);
-                // FloatWA detectedSurfaceNormalVector = new FloatWA(6);
-                // int operationMode = remoteApi.simx_opmode_blocking;
+                System.out.format(
+                        "%d: updateJoints Function: Remote API function call returned with error code %d when updating joint %d at time%f\n",
+                        rank, ret, module, time);
 
-                // ret = coppeliaSimApi.simxReadProximitySensor(clientID,
-                // moduleHandlers.get(module) + 2,
-                // detectionState,
-                // detectedPoint, detectedObjectHandle, detectedSurfaceNormalVector,
-                // operationMode);
-                // System.out.println("Module: " + module);
-                // System.out.println("Handle: " + (moduleHandlers.get(module) + 2));
-
-                // System.out.println("Result: " + ret);
+                return false;
             }
-
         }
 
         coppeliaSimApi.simxPauseCommunication(clientID, false);

@@ -37,9 +37,9 @@ public class EvaluateEMERGESetTest {
         // Create the root node (base node)
         Node rootNode = new Node(0, null);
 
-        // Node rightLeg1 = new Node(1, rootNode);
-        // Connection rightLeg1connection = new Connection(rootNode, rightLeg1, 6, 1);
-        // rootNode.addChildren(rightLeg1, rightLeg1connection);
+        Node rightLeg1 = new Node(1, rootNode);
+        Connection rightLeg1connection = new Connection(rootNode, rightLeg1, 6, 1);
+        rootNode.addChildren(rightLeg1, rightLeg1connection);
 
         // Node rightLeg2 = new Node(1, rightLeg1);
         // Connection rightLeg2connection = new Connection(rightLeg1, rightLeg2, 2, 0);
@@ -76,9 +76,9 @@ public class EvaluateEMERGESetTest {
 
         // Assemble the robot in Coppelia and evaluate it
         CoppeliaSimEvaluator evaluador = new CoppeliaSimEvaluator(robotIndividual.getChromosomeAt(0));
-        // double fitness = evaluador.evaluate();
+        double fitness = evaluador.evaluate();
 
-        // System.out.println("The fitness of the robot is " + fitness);
+        System.out.println("The fitness of the robot is " + fitness);
 
         IntW pingTime = new IntW(0);
         coppeliaSimApi.simxGetPingTime(clientID, pingTime);
