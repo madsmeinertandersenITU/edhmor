@@ -222,6 +222,9 @@ public class CoppeliaSimCreateRobot {
         if (!success) {
             System.out.println(rank + ": CoppeliaSimCreateRobot. Robot assemled with errors.");
         }
+
+        System.out.println("FINAL HANDLERS: " + moduleHandlers);
+
         return success;
     }
 
@@ -246,6 +249,7 @@ public class CoppeliaSimCreateRobot {
             promptEnterKey();
             moveModule(keyNumber, -1, poszero);
         }
+
         return rootModuleHandler >= 0;
     }
 
@@ -343,11 +347,6 @@ public class CoppeliaSimCreateRobot {
                 forceSensorOrientation[0] = Math.PI / 2;
             }
             // Rotate Force Sensor in CoppeliaSim
-            Set<Integer> keys = moduleHandlers.keySet();
-            List<Integer> keyList = new ArrayList<>(keys);
-
-            int index = parentModule[module]; // Assuming this is a valid index
-            Integer parentModuleTypeValue = keyList.get(index);
             System.out.println("ROTATING MODULE 329 " + result);
 
             success &= rotateModule(forceSensor, result, forceSensorOrientation);
@@ -371,7 +370,7 @@ public class CoppeliaSimCreateRobot {
         // The rest have 4 (2 shapes, 1 joint and 1 dummy)
         // We first calculate the number of shapes of the parent module
         // substract one to remove force sensor between modules
-        Integer keyNumber = keyList.get(module - 1);
+        Integer keyNumber = keyList.get(module);
         System.out.println(keyList);
         System.out.println("CALC numberOfShapesAndJoints 344  GET " + keyNumber);
 

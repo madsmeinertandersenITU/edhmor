@@ -68,6 +68,7 @@ public class ConeSensorController extends RobotController {
         int index = 0;
         Set<Integer> keys = moduleHandlers.keySet();
         List<Integer> keyList = new ArrayList<>(keys);
+        // System.out.println(keyList);
         for (Map.Entry<Integer, Integer> entry : moduleHandlers.entrySet()) {
             int module = index;
             if (entry.getValue() == null) {
@@ -128,7 +129,7 @@ public class ConeSensorController extends RobotController {
                 ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, keyNumber + 2,
                         targetPosition, remoteApi.simx_opmode_oneshot);
                 if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
-                    // System.out.format("Updating module: " + module);
+                    // System.out.println("Updating module: " + module);
                 } else {
                     System.out.format(
                             "%d: updateJoints Function: Remote API function call returned with error code %d when updating joint %d at time%f\n",
@@ -149,6 +150,7 @@ public class ConeSensorController extends RobotController {
                         operationMode);
 
                 if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
+                    System.out.println("Updating sensor module: " + module);
                     if (detectionState.getValue()) {
                         sensorValueLogger.logDistance(System.currentTimeMillis(), detectedPoint.getArray()[2]);
 
@@ -162,6 +164,9 @@ public class ConeSensorController extends RobotController {
                             "%d: readProximity Function: Remote API function call returned with error code %d when updating joint %d at time%f\n",
                             rank, ret, module, time);
                 }
+            } else {
+                // System.out.println("NOT updating module: " + module);
+
             }
 
             index++;

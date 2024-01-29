@@ -34,6 +34,8 @@ public class EvaluateEMERGESetTest {
         robotIndividual.init(141);
         robotIndividual.generate();
 
+        // Node rootNode = new Node(1, null);
+
         // Create the root node (base node)
         Node rootNode = new Node(0, null);
 
@@ -42,11 +44,11 @@ public class EvaluateEMERGESetTest {
         rootNode.addChildren(rightLeg1, rightLeg1connection);
 
         // Node rightLeg2 = new Node(1, rightLeg1);
-        // Connection rightLeg2connection = new Connection(rightLeg1, rightLeg2, 2, 0);
+        // Connection rightLeg2connection = new Connection(rightLeg1, rightLeg2, 2, 1);
         // rightLeg1.addChildren(rightLeg2, rightLeg2connection);
 
         // Node rightLeg3 = new Node(1, rightLeg1);
-        // Connection rightLeg3connection = new Connection(rightLeg1, rightLeg2, 3, 0);
+        // Connection rightLeg3connection = new Connection(rightLeg2, rightLeg3, 3, 1);
         // rightLeg1.addChildren(rightLeg3, rightLeg3connection);
 
         Node leftLeg1 = new Node(1, rootNode);
@@ -57,9 +59,9 @@ public class EvaluateEMERGESetTest {
         // Connection connection2 = new Connection(leftLeg1, leftLeg2, 3, 0);
         // leftLeg1.addChildren(leftLeg2, connection2);
 
-        Node nodeType3 = new Node(2, rootNode);
-        Connection connection3 = new Connection(rootNode, nodeType3, 4, 1);
-        rootNode.addChildren(nodeType3, connection3);
+        // Node nodeType3 = new Node(2, rootNode);
+        // Connection connection3 = new Connection(rootNode, nodeType3, 4, 1);
+        // rootNode.addChildren(nodeType3, connection3);
 
         robotIndividual.setRootNode(rootNode);
         robotIndividual.modifyChromosome();
