@@ -219,6 +219,8 @@ public class CoppeliaSimCreateRobot {
         if (!success) {
             System.out.println(rank + ": CoppeliaSimCreateRobot. Robot assemled with errors.");
         }
+        System.out.println("FINAL HANDLERS: " + moduleHandlers);
+
         return success;
     }
 
@@ -228,6 +230,7 @@ public class CoppeliaSimCreateRobot {
 
         int rootModuleHandler = addModule(0);
         moduleHandlers.add(rootModuleHandler);
+        System.out.println("ADDING ROOT 232: " + rootModuleHandler);
 
         if (pauseandshow) {
             moveModule(moduleHandlers.get(0), -1, posIni);
@@ -258,6 +261,8 @@ public class CoppeliaSimCreateRobot {
         // Move the robot up
         // double[] posIni = {0, 0, initialHeight};
         // System.out.println("Moving robot up");
+        System.out.println("MOVING MODULE 263 " + moduleHandlers.get(0));
+
         return moveModule(moduleHandlers.get(0), -1, posIni);
     }
 
@@ -278,6 +283,7 @@ public class CoppeliaSimCreateRobot {
         int moduleHandler = addModule(module);
         moduleHandlers.add(moduleHandler);
         boolean success = moduleHandler >= 0;
+        System.out.println("ADDING MODULE 286 " + moduleHandler);
 
         int[] moduleType = robotFeatures.getModuleType();
         int[] parentModule = robotFeatures.getParentModule();
@@ -317,10 +323,12 @@ public class CoppeliaSimCreateRobot {
             }
             // Rotate Force Sensor in CoppeliaSim
             success &= rotateModule(forceSensor, moduleHandlers.get(parentModule[module]), forceSensorOrientation);
+            System.out.println("ROTATING MODULE 329 " + moduleHandlers.get(parentModule[module]));
         }
         // Move Force Sensor in CoppeliaSim
         double posForceSensor[] = ofp.toArray();
         success &= moveModule(forceSensor, moduleHandlers.get(parentModule[module]), posForceSensor);
+        System.out.println("MOVING MODULE 335 " + moduleHandlers.get(parentModule[module]));
 
         // Set the force sensor as a child of the parent module
         // FIXME: This code will not work in modules with 2 or more dof
@@ -328,6 +336,8 @@ public class CoppeliaSimCreateRobot {
         // Atron modules have 6 (4 shapes, 1 joint and 1 dummy)
         // The rest have 4 (2 shapes, 1 joint and 1 dummy)
         int numberOfShapesAndJoints = moduleHandlers.get(module) - moduleHandlers.get(parentModule[module]) - 1;
+        System.out.println("CALC numberOfShapesAndJoints 344  GET " + numberOfShapesAndJoints);
+
         // And calculate the offset of the shape to attach, if not attached to the base
         // part
         int offset = 0;
@@ -335,13 +345,16 @@ public class CoppeliaSimCreateRobot {
             offset = numberOfShapesAndJoints / 2;
         }
         success &= setObjectParent(forceSensor, moduleHandlers.get(parentModule[module]) + 1 + offset);
-
+        System.out.println("CALC numberOfShapesAndJoints 344  GET PARENT " + moduleHandlers.get(parentModule[module])
+                + 1 + offset);
         // Set the child module as a child of the foce sensor
         // FIXME: This code will not work in modules with 2 or more dof
         if (moduleSet.faceBelongsToBasePart(modType, childFace)) {
             success &= setObjectParent(moduleHandler + 1, forceSensor);
+            System.out.println("SET OBJECT PARENT 355 " + moduleHandler + 1);
         } else {
             numberOfShapesAndJoints = forceSensor - moduleHandlers.get(module);
+
             if (numberOfShapesAndJoints == 4) {
                 success &= setObjectParent(moduleHandler + 3, forceSensor);
                 success &= setObjectParent(moduleHandler + 2, moduleHandler + 3);
