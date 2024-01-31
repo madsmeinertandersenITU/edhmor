@@ -129,7 +129,7 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
         // relativeToObjectHandle, FloatWA position, int operationMode)
         Set<Integer> keys = robot.getModuleHandlers().keySet();
         List<Integer> keyList = new ArrayList<>(keys);
-        Integer keyNumber = keyList.get(0);
+        Integer keyNumber = keyList.get(keyList.size() - 1);
 
         int baseHandle = keyNumber + 1;
         FloatWA position = new FloatWA(3);
