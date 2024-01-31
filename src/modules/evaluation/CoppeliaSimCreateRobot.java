@@ -25,6 +25,7 @@ import coppelia.IntWA;
 import coppelia.remoteApi;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -229,7 +230,7 @@ public class CoppeliaSimCreateRobot {
     }
 
     protected boolean initAssembly(double[] posIni, double[] poszero) {
-        moduleHandlers = new HashMap<>(); // Change the type to Map
+        moduleHandlers = new LinkedHashMap<>(); // Change the type to Map
         forceSensorHandlers = new ArrayList<Integer>();
 
         int rootModuleHandler = addModule(0);
@@ -239,7 +240,7 @@ public class CoppeliaSimCreateRobot {
         if (pauseandshow) {
             Set<Integer> keys = moduleHandlers.keySet();
             List<Integer> keyList = new ArrayList<>(keys);
-            Integer keyNumber = keyList.get(keyList.size() - 1);
+            Integer keyNumber = keyList.get(0);
             moveModule(keyNumber, -1, posIni);
             System.out.println("Just added module: 0");
             System.out.println("Amplitude control, AngularFreqControl, PhaseControl");
@@ -272,7 +273,7 @@ public class CoppeliaSimCreateRobot {
         Set<Integer> keys = moduleHandlers.keySet();
         List<Integer> keyList = new ArrayList<>(keys);
 
-        Integer lastKey = keyList.get(keyList.size() - 1);
+        Integer lastKey = keyList.get(0);
         System.out.println("MOVING MODULE 263 " + lastKey);
         return moveModule(lastKey, -1, posIni);
     }
@@ -280,7 +281,7 @@ public class CoppeliaSimCreateRobot {
     protected void shiftBaseTemp(double[] posIni, double[] poszero, boolean reset) {
         Set<Integer> keys = moduleHandlers.keySet();
         List<Integer> keyList = new ArrayList<>(keys);
-        Integer keyNumber = keyList.get(keyList.size() - 1);
+        Integer keyNumber = keyList.get(0);
         if (reset) {
             moveModule(keyNumber, -1, poszero);
         } else {
@@ -306,16 +307,10 @@ public class CoppeliaSimCreateRobot {
         int conectionFace = robotFeatures.getDadFace()[module - 1] % moduleSet.getModulesFacesNumber(parentModuleType);
         int orientation = robotFeatures.getChildOrientation()[(module - 1)] % moduleSet.getModuleOrientations(modType);
 
-        int parentModuleValue = parentModule[module];
+        Set<Integer> keys = moduleHandlers.keySet();
+        List<Integer> keyList = new ArrayList<>(keys);
 
-        Integer result = null;
-
-        for (Map.Entry<Integer, Integer> entry : moduleHandlers.entrySet()) {
-            if (entry.getValue().equals(parentModuleValue)) {
-                result = entry.getKey();
-                break;
-            }
-        }
+        var result = keyList.get(parentModule[module]);
 
         // Get the vector which is normal to the face of the parent
         Vector3D normalParentFace = moduleSet.getNormalFaceVector(parentModuleType, conectionFace);
@@ -353,9 +348,6 @@ public class CoppeliaSimCreateRobot {
         }
         // Move Force Sensor in CoppeliaSim
         double posForceSensor[] = ofp.toArray();
-
-        Set<Integer> keys = moduleHandlers.keySet();
-        List<Integer> keyList = new ArrayList<>(keys);
 
         System.out.println("MOVING MODULE 335 " + result);
 
@@ -403,7 +395,7 @@ public class CoppeliaSimCreateRobot {
 
         }
         if (pauseandshow) {
-            Integer keyZero = keyList.get(keyList.size() - 1);
+            Integer keyZero = keyList.get(0);
             moveModule(keyZero, -1, posIni);
             System.out.println("Just added module: " + module);
             System.out.println("Amplitude control, AngularFreqControl, PhaseControl");
