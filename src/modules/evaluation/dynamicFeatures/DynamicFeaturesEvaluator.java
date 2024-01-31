@@ -156,6 +156,7 @@ public class DynamicFeaturesEvaluator {
         // int simxGetObjectPosition(int clientID,int objectHandle, int
         // relativeToObjectHandle, FloatWA position, int operationMode)
         int baseHandle = robot.getModuleHandlers().get(0) + 1;
+        System.out.println("BASE HANDLE: " + baseHandle);
         FloatWA orientation = new FloatWA(3);
 
         int ret = coppeliaSimApi.simxGetObjectOrientation(clientID, baseHandle, -1 /* Absolute position */, orientation,

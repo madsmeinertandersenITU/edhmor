@@ -162,6 +162,7 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
         // the module (base and actuator). We need to know the mass for
         for (int i = 0; i < modules.size(); i++) {
             double moduleMass = ModuleSetFactory.getModulesSet().getModulesMass(modulesType[i]);
+            System.out.println("MODULE MASS: " + moduleMass);
 
             int index = Arrays.binarySearch(orderedHandles, modules.get(i) + 1);
             x += floatData.getArray()[3 * index] * moduleMass;
