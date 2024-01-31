@@ -71,7 +71,7 @@ public class ConeSensorController extends RobotController {
             ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, moduleHandlers.get(module) + 2,
                     targetPosition, remoteApi.simx_opmode_oneshot);
             if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
-                System.out.format("Updating module: " + module);
+                System.out.println("Updating module: " + moduleHandlers.get(module) + 2);
             } else {
                 System.out.format(
                         "%d: updateJoints Function: Remote API function call returned with error code %d when updating joint %d at time%f\n",
