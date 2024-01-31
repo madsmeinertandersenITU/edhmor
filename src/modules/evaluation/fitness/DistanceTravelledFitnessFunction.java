@@ -123,6 +123,7 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
         // int simxGetObjectPosition(int clientID,int objectHandle, int
         // relativeToObjectHandle, FloatWA position, int operationMode)
         int baseHandle = robot.getModuleHandlers().get(0) + 1;
+        System.out.println("BASE AGAIN: " + baseHandle);
         FloatWA position = new FloatWA(3);
         int ret = coppeliaSimApi.simxGetObjectPosition(clientID, baseHandle, -1 /* Absolute position */, position,
                 remoteApi.simx_opmode_oneshot_wait);
