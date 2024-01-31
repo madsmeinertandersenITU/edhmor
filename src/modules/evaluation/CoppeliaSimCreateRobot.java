@@ -239,7 +239,7 @@ public class CoppeliaSimCreateRobot {
         if (pauseandshow) {
             Set<Integer> keys = moduleHandlers.keySet();
             List<Integer> keyList = new ArrayList<>(keys);
-            Integer keyNumber = keyList.get(0);
+            Integer keyNumber = keyList.get(keyList.size() - 1);
             moveModule(keyNumber, -1, posIni);
             System.out.println("Just added module: 0");
             System.out.println("Amplitude control, AngularFreqControl, PhaseControl");
@@ -272,9 +272,9 @@ public class CoppeliaSimCreateRobot {
         Set<Integer> keys = moduleHandlers.keySet();
         List<Integer> keyList = new ArrayList<>(keys);
 
-        Integer firstKey = keyList.get(keyList.size() - 1);
-        System.out.println("MOVING MODULE 263 " + firstKey);
-        return moveModule(firstKey, -1, posIni);
+        Integer lastKey = keyList.get(keyList.size() - 1);
+        System.out.println("MOVING MODULE 263 " + lastKey);
+        return moveModule(lastKey, -1, posIni);
     }
 
     protected void shiftBaseTemp(double[] posIni, double[] poszero, boolean reset) {
@@ -403,15 +403,15 @@ public class CoppeliaSimCreateRobot {
 
         }
         if (pauseandshow) {
-            Integer zeroKeyNumber = keyList.get(0);
-            moveModule(zeroKeyNumber, -1, posIni);
+            Integer keyZero = keyList.get(keyList.size() - 1);
+            moveModule(keyZero, -1, posIni);
             System.out.println("Just added module: " + module);
             System.out.println("Amplitude control, AngularFreqControl, PhaseControl");
             System.out.print(robotFeatures.getAmplitudeControl()[module]);
             System.out.print(", " + robotFeatures.getAngularFreqControl()[module]);
             System.out.println(", " + robotFeatures.getPhaseControl()[module]);
             promptEnterKey();
-            moveModule(zeroKeyNumber, -1, poszero);
+            moveModule(keyZero, -1, poszero);
         }
         return success;
         // And calculate the offset of the shape to attach, if not attached to the base

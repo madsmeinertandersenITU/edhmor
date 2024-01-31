@@ -39,7 +39,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 /**
  * CalculateModulePositions.java Created on 25/03/2016
  *
- * @author Andres Faiña <anfv  at itu.dk>
+ * @author Andres Faiña <anfv at itu.dk>
  */
 public class CalculateModulePositions {
 
@@ -72,7 +72,7 @@ public class CalculateModulePositions {
     private double averageConnectionsPerModule;
     private double dispersionConnectionsPerModule;
 
-    //Descriptors
+    // Descriptors
     private double limbDescriptor;
     private double limbLengthDescriptor;
 
@@ -88,11 +88,11 @@ public class CalculateModulePositions {
      * <p>
      *
      * @param tree the tree individual where the morphology and the control
-     * parameters are stored
+     *             parameters are stored
      *
      */
     public CalculateModulePositions(TreeIndividual tree) {
-        //Load the module set 
+        // Load the module set
         moduleSet = ModuleSetFactory.getModulesSet();
         this.nModulesMax = (tree.getChromosomeAt(0).length + 3) / 9;
         this.nModules = tree.getRootNode().getNumberModulesBranch();
@@ -100,10 +100,10 @@ public class CalculateModulePositions {
         initArrays();
         treeAnalysis(tree);
 
-        //calculate the rotation and position of the modules and the force 
-        //sensors. Load them in CoppeliaSim simulator. We also calcualte the dimensions
-        //of the robot, the center of mass and other useful features of the
-        //robot
+        // calculate the rotation and position of the modules and the force
+        // sensors. Load them in CoppeliaSim simulator. We also calcualte the dimensions
+        // of the robot, the center of mass and other useful features of the
+        // robot
         calculate();
     }
 
@@ -115,23 +115,23 @@ public class CalculateModulePositions {
      * <p>
      *
      * @param chromo the chromosome where the morphology and the control
-     * parameters are stored as doubles
+     *               parameters are stored as doubles
      *
      */
     public CalculateModulePositions(double[] chromo) {
 
-        //Load the module set 
+        // Load the module set
         moduleSet = ModuleSetFactory.getModulesSet();
 
-        //Convert the doubles to integers
+        // Convert the doubles to integers
         chromosomeInt = new int[chromo.length];
         for (int i = 0; i < chromo.length; i++) {
             chromosomeInt[i] = (int) Math.floor(chromo[i]);
         }
 
-        //Calculate the maximum number of modules that this chromosome allows.
-        //This code is campatible with all the different chromosomes lengths
-        //TODO: remove the oldest chromosome versions
+        // Calculate the maximum number of modules that this chromosome allows.
+        // This code is campatible with all the different chromosomes lengths
+        // TODO: remove the oldest chromosome versions
         if ((chromo.length + 3) % 9 == 0) {
             this.nModulesMax = (chromo.length + 3) / 9;
         } else {
@@ -145,14 +145,17 @@ public class CalculateModulePositions {
 
                 } else {
                     if (chromo.length % 5 == 0) {
-                        //Depreciated
-                        System.err.println("CalculateModulePositions: Are you sure? This lenght for the chromosome is deprecated. Chromosome lenght: " + chromo.length + ", in other words, chromosome%5=0");
+                        // Depreciated
+                        System.err.println(
+                                "CalculateModulePositions: Are you sure? This lenght for the chromosome is deprecated. Chromosome lenght: "
+                                        + chromo.length + ", in other words, chromosome%5=0");
 
-                        //Metamodule base as the beginning of morphological tree
+                        // Metamodule base as the beginning of morphological tree
                         this.nModulesMax = (chromo.length / 5) + 1;
 
                     } else {
-                        System.err.println("CalculateModulePositions: Error in the lenght of the chromosome; length: " + chromo.length);
+                        System.err.println("CalculateModulePositions: Error in the lenght of the chromosome; length: "
+                                + chromo.length);
                         for (int i = 0; i < chromo.length; i++) {
                             System.err.print(chromo[i] + ", ");
                         }
@@ -179,13 +182,13 @@ public class CalculateModulePositions {
             }
         }
 
-        //Now, analysis the chromosome
+        // Now, analysis the chromosome
         this.chromosomeAnalysis();
 
-        //calculate the rotation and position of the modules and the force 
-        //sensors. Load them in CoppeliaSim simulator. We also calcualte the dimensions
-        //of the robot, the center of mass and other useful features of the
-        //robot
+        // calculate the rotation and position of the modules and the force
+        // sensors. Load them in CoppeliaSim simulator. We also calcualte the dimensions
+        // of the robot, the center of mass and other useful features of the
+        // robot
         calculate();
     }
 
@@ -214,7 +217,7 @@ public class CalculateModulePositions {
 
     private void calculate() {
 
-        //Start with the first module
+        // Start with the first module
         int type = this.moduleType[0];
         typePercentage[type]++;
         this.robotMass += moduleSet.getModulesMass(type);
@@ -253,7 +256,7 @@ public class CalculateModulePositions {
                 this.minPos.z = facePos.getZ();
                 supportFaces.clear();
             }
-            //Add supports
+            // Add supports
             if (facePos.getZ() - this.minPos.z < 0.15) {
                 supportFaces.add(facePos);
             }
@@ -283,8 +286,8 @@ public class CalculateModulePositions {
                     break;
             }
 
-            //Check that the face of the parent where we are going to attach the 
-            //child ist available
+            // Check that the face of the parent where we are going to attach the
+            // child ist available
             while (occupiedFaces[parentModule[module]][conectionFace] == 1) {
                 System.err.println("Error in CalculateModulePositions: face already occupied. Individual:");
                 for (int i = 0; i < chromosomeInt.length; i++) {
@@ -298,41 +301,42 @@ public class CalculateModulePositions {
             }
             occupiedFaces[parentModule[module]][conectionFace] = 1;
 
-            //Get the vector which is normal to the face of the parent
+            // Get the vector which is normal to the face of the parent
             Vector3D normalParentFace = moduleSet.getNormalFaceVector(parentModuleType, conectionFace);
-            //Get the vector which is coplanar to the face of the parent
+            // Get the vector which is coplanar to the face of the parent
             Vector3D coplanarParentFace = moduleSet.getCoplanarFaceVector(parentModuleType, conectionFace);
 
-            //Calculate the rotation of the child to align both normals and 
-            //roate them according to the orientation of the child
+            // Calculate the rotation of the child to align both normals and
+            // roate them according to the orientation of the child
             ModuleRotation rot = new ModuleRotation(modType, orientation, normalParentFace, coplanarParentFace);
 
-            //Get the vector from the origin of the module to the connection 
-            //face (in the parent) Origin parent -> Face parent (OFP)
+            // Get the vector from the origin of the module to the connection
+            // face (in the parent) Origin parent -> Face parent (OFP)
             Vector3D ofp = moduleSet.getOriginFaceVector(parentModuleType, conectionFace);
 
-            //Face of the child to attach the module
+            // Face of the child to attach the module
             int childFace = moduleSet.getConnectionFaceForEachOrientation(modType, orientation);
 
-            //Get the vector from the origin of the module to the connection 
-            //face (in the child) Origin child -> Face child (OFC)
+            // Get the vector from the origin of the module to the connection
+            // face (in the child) Origin child -> Face child (OFC)
             Vector3D ofc = moduleSet.getOriginFaceVector(modType, childFace);
-            occupiedFaces[module][childFace] = 1; //Set that face occupied
+            occupiedFaces[module][childFace] = 1; // Set that face occupied
 
-            //Rotate the ofc vector 
+            // Rotate the ofc vector
             Vector3D ofcRotated = rot.getRotation().applyTo(ofc);
-            ofcRotated = ofcRotated.negate(); //Negate it                                             
+            ofcRotated = ofcRotated.negate(); // Negate it
 
-            //Obtain the position of the chid in the coord. system of the parent
+            // Obtain the position of the chid in the coord. system of the parent
             Vector3D posVector = ofcRotated.add(ofp);
 
-            //Rotation and pos of the module in the coord. system of the world
+            // Rotation and pos of the module in the coord. system of the world
             moduleRotation[module] = moduleRotation[parentModule[module]].applyTo(rot.getRotation());
             modulePosition[module] = moduleRotation[parentModule[module]].applyTo(posVector);
             modulePosition[module] = modulePosition[module].add(modulePosition[parentModule[module]]);
 
-            //Calculate the center of mass of the robot
-            Vector3D aux = new Vector3D(modulePosition[module].getX(), modulePosition[module].getY(), modulePosition[module].getZ());
+            // Calculate the center of mass of the robot
+            Vector3D aux = new Vector3D(modulePosition[module].getX(), modulePosition[module].getY(),
+                    modulePosition[module].getZ());
             double s = moduleSet.getModulesMass(modType);
             this.robotMass += s;
             aux = aux.scalarMultiply(s);
@@ -342,13 +346,13 @@ public class CalculateModulePositions {
                 System.out.println("Total mass of the robot: " + this.robotMass + "; cdm: " + this.com);
             }
 
-            //We check the position in wold coodinates for all the faces of the 
-            //modules. We find the lowest position in Z axis and the we added 
-            //this distance to the root module. Then, all the modules are above
-            //the ground level and at least the robot has one point of support.
-            //FIXME: Hinge modules in Edhmor and Rodrigo´s modules in one 
-            //orientation dont have faces in all the directions, then they could 
-            //be partially buried in the ground.
+            // We check the position in wold coodinates for all the faces of the
+            // modules. We find the lowest position in Z axis and the we added
+            // this distance to the root module. Then, all the modules are above
+            // the ground level and at least the robot has one point of support.
+            // FIXME: Hinge modules in Edhmor and Rodrigo´s modules in one
+            // orientation dont have faces in all the directions, then they could
+            // be partially buried in the ground.
             int nFacesToLook = moduleSet.getModulesFacesNumber(modType);
             for (int face = 0; face < nFacesToLook; face++) {
                 ofc = moduleSet.getOriginFaceVector(modType, face);
@@ -375,7 +379,7 @@ public class CalculateModulePositions {
                     this.minPos.z = ofcRotated.getZ();
                     supportFaces.clear();
                 }
-                //Add supports
+                // Add supports
                 if (ofcRotated.getZ() - this.minPos.z < 0.15) {
                     supportFaces.add(ofcRotated);
                 }
@@ -388,16 +392,20 @@ public class CalculateModulePositions {
         this.com = this.com.scalarMultiply(1 / this.robotMass);
         this.coverage /= (this.dimensions.x * this.dimensions.y * this.dimensions.z);
 
-        //Calculate the moment of inertia
+        // Calculate the moment of inertia
         double Ix = 0, Iy = 0, Iz = 0;
         for (int module = 1; module < nModules; module++) {
-            Vector3D posModule = new Vector3D(modulePosition[module].getX(), modulePosition[module].getY(), modulePosition[module].getZ());
+            Vector3D posModule = new Vector3D(modulePosition[module].getX(), modulePosition[module].getY(),
+                    modulePosition[module].getZ());
 
-            double axisZdistance = Math.pow(posModule.getX() - this.com.getX(), 2) + Math.pow(posModule.getY() - this.com.getY(), 2);
+            double axisZdistance = Math.pow(posModule.getX() - this.com.getX(), 2)
+                    + Math.pow(posModule.getY() - this.com.getY(), 2);
             axisZdistance = Math.sqrt(axisZdistance);
-            double axisXdistance = Math.pow(posModule.getY() - this.com.getY(), 2) + Math.pow(posModule.getZ() - this.com.getZ(), 2);
+            double axisXdistance = Math.pow(posModule.getY() - this.com.getY(), 2)
+                    + Math.pow(posModule.getZ() - this.com.getZ(), 2);
             axisXdistance = Math.sqrt(axisXdistance);
-            double axisYdistance = Math.pow(posModule.getX() - this.com.getX(), 2) + Math.pow(posModule.getZ() - this.com.getZ(), 2);
+            double axisYdistance = Math.pow(posModule.getX() - this.com.getX(), 2)
+                    + Math.pow(posModule.getZ() - this.com.getZ(), 2);
             axisYdistance = Math.sqrt(axisYdistance);
 
             Ix += axisXdistance * moduleSet.getModulesMass(moduleType[module]);
@@ -408,7 +416,8 @@ public class CalculateModulePositions {
         inertia = new Vector3D(Ix, Iy, Iz);
 
         if (SimulationConfiguration.isDebug()) {
-            System.out.println("min_pos: " + this.minPos + "; max_pos: " + this.maxPos + "; dimensions: " + this.dimensions);
+            System.out.println(
+                    "min_pos: " + this.minPos + "; max_pos: " + this.maxPos + "; dimensions: " + this.dimensions);
             System.out.println("Total mass of the robot: " + this.robotMass + "; cdm: " + this.com);
         }
 
@@ -484,32 +493,31 @@ public class CalculateModulePositions {
             System.out.println(strOrientation + "\n");
         }
 
-        
         if ((chromosomeInt.length + 3) % 9 == 0) {
 
-            //Control parameters of the amplitude 
+            // Control parameters of the amplitude
             for (int i = 0; i < (nModulesMax); i++) {
                 this.amplitudeControl[i] = chromosomeDouble[4 * nModulesMax - 3 + i];
             }
 
-            //Control parameters of the angular frequency 
+            // Control parameters of the angular frequency
             for (int i = 0; i < (nModulesMax); i++) {
                 this.angularFreqControl[i] = chromosomeDouble[5 * nModulesMax - 3 + i];
             }
 
-            //Control parameters of phase 
+            // Control parameters of phase
             for (int i = 0; i < (nModulesMax); i++) {
                 this.phaseControl[i] = chromosomeInt[6 * nModulesMax - 3 + i];
             }
 
-            //Control parameters of the amplitude modulator
+            // Control parameters of the amplitude modulator
             for (int i = 0; i < (nModulesMax); i++) {
-                //this.amplitudeModulation[i] = chromosomeDouble[7 * nModulesMax - 3 + i];
+                // this.amplitudeModulation[i] = chromosomeDouble[7 * nModulesMax - 3 + i];
             }
 
-            //Control parameters of the frequency modulator
+            // Control parameters of the frequency modulator
             for (int i = 0; i < (nModulesMax); i++) {
-                //this.frequencyModulation[i] = chromosomeDouble[8 * nModulesMax - 3 + i];
+                // this.frequencyModulation[i] = chromosomeDouble[8 * nModulesMax - 3 + i];
             }
 
         } else {
@@ -519,13 +527,13 @@ public class CalculateModulePositions {
 
             if (chromosomeInt.length > 5 * nModulesMax - 3) {
                 for (int i = 0; i < (nModulesMax); i++) {
-                    //frequencyModulation[i] = chromosomeDouble[5 * nModulesMax - 3 + i];
+                    // frequencyModulation[i] = chromosomeDouble[5 * nModulesMax - 3 + i];
                 }
             }
 
         }
 
-        //Calculating the level of each module
+        // Calculating the level of each module
         int[] levelModuleNumber = new int[nModulesMax];
         levelModuleNumber[0] = 1;
         int i = 0;
@@ -536,7 +544,7 @@ public class CalculateModulePositions {
         for (int currentLevel = 0; currentLevel < nModulesMax; currentLevel++) {
             for (int j = 0; j < levelModuleNumber[currentLevel] && i < nModulesMax; j++) {
                 level[i] = currentLevel;
-                if (i < nModulesMax - 1) //To avoid the arry overflow 
+                if (i < nModulesMax - 1) // To avoid the arry overflow
                 {
                     levelModuleNumber[currentLevel + 1] += connections[i];
                     nModules += connections[i];
@@ -549,7 +557,7 @@ public class CalculateModulePositions {
             nModules = nModulesMax;
         }
 
-        //calculate the parent module
+        // calculate the parent module
         int k = 0;
         for (int ii = 0; ii < nModules - 1; ii++) {
             for (int j = 0; j < connections[ii] && k < (nModules - 1); j++) {
@@ -557,7 +565,7 @@ public class CalculateModulePositions {
             }
         }
 
-        //calculate connection features
+        // calculate connection features
         calculateConnectionFeatures(connections);
         calculateLimbFeatures(connections);
 
@@ -567,7 +575,8 @@ public class CalculateModulePositions {
 
         int[] moduleConnections = new int[nModules];
         moduleConnections[0] = connections[0];
-        //If there is more than one module, add the missing connection to the other modules
+        // If there is more than one module, add the missing connection to the other
+        // modules
         if (this.nModules > 1) {
             for (int i = 1; i < nModules - 1; i++) {
                 moduleConnections[i] = connections[i] + 1;
@@ -575,12 +584,13 @@ public class CalculateModulePositions {
             moduleConnections[nModules - 1] = 1;
         }
         this.averageConnectionsPerModule = this.average(moduleConnections);
-        this.dispersionConnectionsPerModule = this.standardDeviation(moduleConnections, this.averageConnectionsPerModule);
+        this.dispersionConnectionsPerModule = this.standardDeviation(moduleConnections,
+                this.averageConnectionsPerModule);
     }
 
     private void calculateLimbFeatures(int[] connections) {
-        //TODO: Check
-        //int[] moduleConnections = new int[nModules];
+        // TODO: Check
+        // int[] moduleConnections = new int[nModules];
         int modulesAttachedInOneFace = 0;
         int modulesAttachedInTwoFaces = 0;
         if (this.nModules > 1) {
@@ -595,8 +605,8 @@ public class CalculateModulePositions {
         } else {
             modulesAttachedInOneFace = 1;
         }
-        //System.err.println("modulesAttachedInOneFace "+modulesAttachedInOneFace);
-        //System.err.println("modulesAttachedInTwoFaces "+modulesAttachedInTwoFaces);
+        // System.err.println("modulesAttachedInOneFace "+modulesAttachedInOneFace);
+        // System.err.println("modulesAttachedInTwoFaces "+modulesAttachedInTwoFaces);
 
         this.limbDescriptor = (double) modulesAttachedInOneFace / nModules;
         this.limbLengthDescriptor = (double) modulesAttachedInTwoFaces / nModules;
