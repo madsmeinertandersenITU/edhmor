@@ -56,6 +56,8 @@ public class ConeSensorController extends RobotController {
             // each actuator in the module. For now, just suppose that all the
             // modules have only one dof.
 
+            System.out.println("MODULE: " + module);
+
             float targetPosition;
             if (usePhaseControl && !useAngularFreqControl && !useAmplitudeControl) {
                 targetPosition = (float) (maxAmplitude[module]
