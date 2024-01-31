@@ -160,12 +160,9 @@ public class DynamicFeaturesEvaluator {
         // relativeToObjectHandle, FloatWA position, int operationMode)
         Set<Integer> keys = robot.getModuleHandlers().keySet();
         List<Integer> keyList = new ArrayList<>(keys);
-        System.out.println("KEYS: " + keyList);
 
         Integer firstKey = keyList.get(keyList.size() - 1);
         int baseHandle = firstKey + 1;
-
-        System.out.println("BASE HANDLE: " + baseHandle);
 
         FloatWA orientation = new FloatWA(3);
 

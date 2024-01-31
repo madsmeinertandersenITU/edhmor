@@ -132,6 +132,7 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
         Integer keyNumber = keyList.get(keyList.size() - 1);
 
         int baseHandle = keyNumber + 1;
+        System.out.println("BASE AGAIN: " + baseHandle);
         FloatWA position = new FloatWA(3);
         int ret = coppeliaSimApi.simxGetObjectPosition(clientID, baseHandle, -1 /* Absolute position */, position,
                 remoteApi.simx_opmode_oneshot_wait);
