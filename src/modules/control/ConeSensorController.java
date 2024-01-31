@@ -56,7 +56,7 @@ public class ConeSensorController extends RobotController {
             // each actuator in the module. For now, just suppose that all the
             // modules have only one dof.
 
-            System.out.println("MODULE: " + module);
+            // System.out.println("MODULE: " + module);
 
             float targetPosition;
             if (usePhaseControl && !useAngularFreqControl && !useAmplitudeControl) {
@@ -73,7 +73,7 @@ public class ConeSensorController extends RobotController {
             ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, moduleHandlers.get(module) + 2,
                     targetPosition, remoteApi.simx_opmode_oneshot);
             if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
-                System.out.println("Updating module: " + moduleHandlers.get(module) + 2);
+                // System.out.println("Updating module: " + moduleHandlers.get(module) + 2);
             } else {
                 System.out.format(
                         "%d: updateJoints Function: Remote API function call returned with error code %d when updating joint %d at time%f\n",
