@@ -68,7 +68,7 @@ public class ConeSensorController extends RobotController {
 
         int index = 0;
         Set<Integer> keys = moduleHandlers.keySet();
-        List<Integer> keyList = new ArrayList<>(keys);
+        List<Integer> keyList = new ArrayList<>(keys).reversed();
         // System.out.println(keyList);
         for (Map.Entry<Integer, Integer> entry : moduleHandlers.entrySet()) {
             int module = index;
