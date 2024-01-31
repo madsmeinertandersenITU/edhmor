@@ -23,9 +23,9 @@ public class ConeSensorController extends RobotController {
     // "C:/ITU/ResearchProject/EMERGEAdittion/emergeAddition/EDHMOR/edhmor/src/modules/control/joint_and_sensor_data.csv",
     // "Time,Joint,ProximitySensor");
 
-    DataLogger sensorValueLogger = new DataLogger(
-            "C:\\ITU\\ResearchProject\\EMERGEAdittion\\emergeAddition\\EDHMOR\\edhmor\\src\\modules\\control\\distance.csv",
-            "Time,Distance");
+    // DataLogger sensorValueLogger = new DataLogger(
+    // "C:\\ITU\\ResearchProject\\EMERGEAdittion\\emergeAddition\\EDHMOR\\edhmor\\src\\modules\\control\\distance.csv",
+    // "Time,Distance");
     boolean usePhaseControl = SimulationConfiguration.isUsePhaseControl();
     boolean useAngularFreqControl = SimulationConfiguration.isUseAngularFControl();
     boolean useAmplitudeControl = SimulationConfiguration.isUseAmplitudeControl();
@@ -57,6 +57,7 @@ public class ConeSensorController extends RobotController {
         if (SimulationConfiguration.isUseMPI()) {
             rank = MPI.COMM_WORLD.Rank();
         }
+        this.removeBase();
     }
 
     @Override
@@ -98,7 +99,7 @@ public class ConeSensorController extends RobotController {
             int operationMode = remoteApi.simx_opmode_continuous;
             Integer keyNumber = keyList.get(module);
 
-            if (moduleHandler == 1) {
+            if (moduleHandler == 1 || moduleHandler == 0) {
                 // if (isObjectDetected) {
                 // float jointTargetPosition = 1.55f;
                 // float module1Position = getJointPosition(moduleHandlers.get(1) + 2);
@@ -152,7 +153,8 @@ public class ConeSensorController extends RobotController {
                 if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
                     System.out.println("Updating sensor module: " + module);
                     if (detectionState.getValue()) {
-                        sensorValueLogger.logDistance(System.currentTimeMillis(), detectedPoint.getArray()[2]);
+                        // sensorValueLogger.logDistance(System.currentTimeMillis(),
+                        // detectedPoint.getArray()[2]);
 
                         isObjectDetected = true;
                     } else {
@@ -171,7 +173,6 @@ public class ConeSensorController extends RobotController {
 
             index++;
         }
-        sensorValueLogger.flush();
 
         coppeliaSimApi.simxPauseCommunication(clientID, false);
         return true;
@@ -205,5 +206,15 @@ public class ConeSensorController extends RobotController {
 
     private static boolean areFloatsEqual(float float1, float float2) {
         return Math.abs(float1 - float2) <= 1f;
+    }
+
+    private void removeBase() {
+        var iterator = moduleHandlers.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, Integer> entry = iterator.next();
+            if (entry.getValue().equals(0)) {
+                iterator.remove();
+            }
+        }
     }
 }
