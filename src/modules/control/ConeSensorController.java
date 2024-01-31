@@ -98,7 +98,7 @@ public class ConeSensorController extends RobotController {
             int operationMode = remoteApi.simx_opmode_continuous;
             Integer keyNumber = keyList.get(module);
 
-            if (moduleHandler == 1) {
+            if (moduleHandler == 1 || moduleHandler == 0) {
                 // if (isObjectDetected) {
                 // float jointTargetPosition = 1.55f;
                 // float module1Position = getJointPosition(moduleHandlers.get(1) + 2);

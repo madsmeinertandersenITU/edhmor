@@ -272,15 +272,15 @@ public class CoppeliaSimCreateRobot {
         Set<Integer> keys = moduleHandlers.keySet();
         List<Integer> keyList = new ArrayList<>(keys);
 
-        Integer firstKey = keyList.get(0);
-        System.out.println("MOVING MODULE 263 " + moduleHandlers.get(0));
+        Integer firstKey = keyList.get(keyList.size() - 1);
+        System.out.println("MOVING MODULE 263 " + firstKey);
         return moveModule(firstKey, -1, posIni);
     }
 
     protected void shiftBaseTemp(double[] posIni, double[] poszero, boolean reset) {
         Set<Integer> keys = moduleHandlers.keySet();
         List<Integer> keyList = new ArrayList<>(keys);
-        Integer keyNumber = keyList.get(0);
+        Integer keyNumber = keyList.get(keyList.size() - 1);
         if (reset) {
             moveModule(keyNumber, -1, poszero);
         } else {
@@ -357,8 +357,6 @@ public class CoppeliaSimCreateRobot {
         Set<Integer> keys = moduleHandlers.keySet();
         List<Integer> keyList = new ArrayList<>(keys);
 
-        int index = parentModule[module]; // Assuming this is a valid index
-        Integer parentModuleTypeValue = keyList.get(index);
         System.out.println("MOVING MODULE 335 " + result);
 
         success &= moveModule(forceSensor, result, posForceSensor);
@@ -370,7 +368,7 @@ public class CoppeliaSimCreateRobot {
         // The rest have 4 (2 shapes, 1 joint and 1 dummy)
         // We first calculate the number of shapes of the parent module
         // substract one to remove force sensor between modules
-        Integer keyNumber = keyList.get(module);
+        Integer keyNumber = keyList.get(module - 1);
         System.out.println(keyList);
         System.out.println("CALC numberOfShapesAndJoints 344  GET " + keyNumber);
 
