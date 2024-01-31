@@ -57,7 +57,7 @@ public class ConeSensorController extends RobotController {
         if (SimulationConfiguration.isUseMPI()) {
             rank = MPI.COMM_WORLD.Rank();
         }
-        this.removeBase();
+        // this.removeBase();
     }
 
     @Override
