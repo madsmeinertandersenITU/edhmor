@@ -123,10 +123,9 @@ public class DynamicFeaturesEvaluator {
                     handleString += handles + " ";
                 }
                 System.out.println(handleString);
-                Map<Integer, Integer> moduleHandles = robot.getModuleHandlers();
                 handleString = rank + ": Module handles: ";
-                for (int handles : moduleHandles.keySet()) {
-                    handleString += handles + " ";
+                for (modules.individual.Module handles : robot.getModuleHandlers()) {
+                    handleString += handles.id + " ";
                 }
                 System.out.println(handleString);
 
@@ -158,10 +157,8 @@ public class DynamicFeaturesEvaluator {
     private Vector3d getBaseRotation(int mode) {
         // int simxGetObjectPosition(int clientID,int objectHandle, int
         // relativeToObjectHandle, FloatWA position, int operationMode)
-        Set<Integer> keys = robot.getModuleHandlers().keySet();
-        List<Integer> keyList = new ArrayList<>(keys);
 
-        Integer firstKey = keyList.get(keyList.size() - 1);
+        Integer firstKey = robot.getModuleHandlers().get(robot.getModuleHandlers().size() - 1).id;
         int baseHandle = firstKey + 1;
 
         FloatWA orientation = new FloatWA(3);

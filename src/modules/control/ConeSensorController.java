@@ -1,6 +1,7 @@
 package modules.control;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,11 +15,13 @@ import coppelia.StringWA;
 import coppelia.remoteApi;
 import modules.ModuleSetFactory;
 import modules.evaluation.CoppeliaSimCreateRobot;
+import modules.individual.CPG;
+import modules.individual.Leg;
+import modules.individual.Module;
 import modules.util.SimulationConfiguration;
 import mpi.MPI;
 
 public class ConeSensorController extends RobotController {
-    private boolean isModule1PositionSet = false;
     // DataLogger dataLogger = new DataLogger(
     // "C:/ITU/ResearchProject/EMERGEAdittion/emergeAddition/EDHMOR/edhmor/src/modules/control/joint_and_sensor_data.csv",
     // "Time,Joint,ProximitySensor");
@@ -29,8 +32,9 @@ public class ConeSensorController extends RobotController {
     boolean usePhaseControl = SimulationConfiguration.isUsePhaseControl();
     boolean useAngularFreqControl = SimulationConfiguration.isUseAngularFControl();
     boolean useAmplitudeControl = SimulationConfiguration.isUseAmplitudeControl();
+    double cpgPhaseOffset = Math.PI / 2; // Phase offset between joints (for demonstration)
     boolean isObjectDetected = false;
-
+    ArrayList<Leg> legs = new ArrayList<>();
     int[] phaseControl, moduleType;
     double[] amplitudeControl, andularFreqControl;
 
@@ -47,6 +51,15 @@ public class ConeSensorController extends RobotController {
         moduleType = robot.getModuleType();
         amplitudeControl = robot.getAmplitudeControl();
         andularFreqControl = robot.getAngularFreqControl();
+
+        for (modules.individual.Module module : moduleHandlers) {
+            if (module.type == 1) { // Assuming type 1 is for emerge modules with actuators
+                // Initialize CPGs with individual parameters if needed
+                if (module.connectedModules.size() == 1) {
+                    legs.add(new Leg(module.connectedModules.getFirst(), module));
+                }
+            }
+        }
 
         for (int module = 0; module < moduleHandlers.size(); module++) {
             // FIXME: could have more control parameters than actuators with modules with
@@ -65,156 +78,64 @@ public class ConeSensorController extends RobotController {
         // TODO: Remove the first module (as it is a base module without actuators)
 
         coppeliaSimApi.simxPauseCommunication(clientID, true);
+        double dt = 0.05; // Define your timestep
 
-        int index = 0;
-        Set<Integer> keys = moduleHandlers.keySet();
-        List<Integer> keyList = new ArrayList<>(keys);
-        // System.out.println(keyList);
-        for (Map.Entry<Integer, Integer> entry : moduleHandlers.entrySet()) {
-            int module = index;
-            if (entry.getValue() == null) {
-                continue;
-            }
-            int moduleHandler = entry.getValue();
+        for (Leg leg : legs) {
+            modules.individual.Module topModule = leg.topPart;
+            modules.individual.Module bottomModule = leg.bottomPart;
 
-            // TODO: this iterates for each module but we should also iterate for
-            // each actuator in the module. For now, just suppose that all the
-            // modules have only one dof.
+            // Assuming Module class has fields like `int id` and `int type`
+            int retTop;
+            int retBottom;
+            // IntW detectedObjectHandle = new IntW(0);
+            // FloatWA detectedPoint = new FloatWA(6);
+            // BoolW detectionState = new BoolW(true);
+            // FloatWA detectedSurfaceNormalVector = new FloatWA(6);
+            // int operationMode = remoteApi.simx_opmode_continuous;
 
-            float targetPosition;
-            if (usePhaseControl && !useAngularFreqControl && !useAmplitudeControl) {
-                targetPosition = (float) (maxAmplitude[module]
-                        * Math.sin(maxAngFreq[module] * time + phaseControl[module] / 180. * Math.PI));
+            float topTargetPosition = calcTargetPosition(topModule, time);
+
+            float bottomTargetPosition = calcTargetPosition(bottomModule, time);
+
+            retTop = coppeliaSimApi.simxSetJointTargetPosition(clientID, topModule.id + 2,
+                    topTargetPosition, remoteApi.simx_opmode_oneshot);
+
+            retBottom = coppeliaSimApi.simxSetJointTargetPosition(clientID, bottomModule.id + 2,
+                    bottomTargetPosition, remoteApi.simx_opmode_oneshot);
+            if ((retTop == remoteApi.simx_return_ok && retBottom == remoteApi.simx_return_ok)
+                    || (retTop == remoteApi.simx_return_novalue_flag
+                            && retBottom == remoteApi.simx_return_novalue_flag)) {
+                // System.out.println("Updating module: " + keyNumber + 2);
             } else {
-                double amplitude = maxAmplitude[module] * amplitudeControl[module];
-                double angularFreq = maxAngFreq[module] * andularFreqControl[module];
-                targetPosition = (float) (amplitude
-                        * Math.sin(angularFreq * time + phaseControl[module] / 180. * Math.PI));
-            }
-            int ret;
-            IntW detectedObjectHandle = new IntW(0);
-            FloatWA detectedPoint = new FloatWA(6);
-            BoolW detectionState = new BoolW(true);
-            FloatWA detectedSurfaceNormalVector = new FloatWA(6);
-            int operationMode = remoteApi.simx_opmode_continuous;
-            Integer keyNumber = keyList.get(module);
+                // System.out.format(
+                // "%d: updateJoints Function: Remote API function call returned with error code
+                // %d when updating joint %d at time%f\n",
+                // rank, ret, module, time);
 
-            if (moduleHandler == 1 || moduleHandler == 0) {
-                // if (isObjectDetected) {
-                // float jointTargetPosition = 1.55f;
-                // float module1Position = getJointPosition(moduleHandlers.get(1) + 2);
-                // float module2Position = getJointPosition(moduleHandlers.get(2) + 2);
-
-                // if (!isModule1PositionSet && !areFloatsEqual(module1Position,
-                // jointTargetPosition)) {
-                // setTargetPosition(1, jointTargetPosition);
-                // } else if (areFloatsEqual(module1Position, jointTargetPosition)
-                // && !areFloatsEqual(module2Position, jointTargetPosition)) {
-                // isModule1PositionSet = true;
-                // setTargetPosition(2, jointTargetPosition);
-                // } else if (areFloatsEqual(module2Position, jointTargetPosition)
-                // && !areFloatsEqual(module1Position, -jointTargetPosition)) {
-                // setTargetPosition(1, -jointTargetPosition);
-                // } else if (areFloatsEqual(module1Position, -jointTargetPosition)
-                // && !areFloatsEqual(module2Position, -jointTargetPosition)) {
-                // setTargetPosition(2, -jointTargetPosition);
-                // } else if (areFloatsEqual(module2Position, -jointTargetPosition)
-                // && !areFloatsEqual(module1Position, jointTargetPosition)) {
-                // setTargetPosition(1, jointTargetPosition);
-                // }
-
-                // // dataLogger.logData(System.currentTimeMillis(),
-                // // getJointPosition(moduleHandlers.get(module) + 2),
-                // // 1);
-
-                ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, keyNumber + 2,
-                        targetPosition, remoteApi.simx_opmode_oneshot);
-                if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
-                    // System.out.println("Updating module: " + keyNumber + 2);
-                } else {
-                    System.out.format(
-                            "%d: updateJoints Function: Remote API function call returned with error code %d when updating joint %d at time%f\n",
-                            rank, ret, module, time);
-
-                    return false;
-                }
-                // } else {
-                // dataLogger.logData(System.currentTimeMillis(),
-                // getJointPosition(moduleHandlers.get(module) + 2),
-                // 0);
-                // }
-            } else if (moduleHandler == 2) {
-                ret = coppeliaSimApi.simxReadProximitySensor(clientID,
-                        keyNumber + 2,
-                        detectionState,
-                        detectedPoint, detectedObjectHandle, detectedSurfaceNormalVector,
-                        operationMode);
-
-                if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
-                    System.out.println("Updating sensor module: " + module);
-                    if (detectionState.getValue()) {
-                        // sensorValueLogger.logDistance(System.currentTimeMillis(),
-                        // detectedPoint.getArray()[2]);
-
-                        isObjectDetected = true;
-                    } else {
-                        isObjectDetected = false;
-                        // System.out.println("No object detected in front of the sensor.");
-                    }
-                } else {
-                    System.out.format(
-                            "%d: readProximity Function: Remote API function call returned with error code %d when updating joint %d at time%f\n",
-                            rank, ret, module, time);
-                }
-            } else {
-                // System.out.println("NOT updating module: " + module);
-
+                return false;
             }
 
-            index++;
         }
 
         coppeliaSimApi.simxPauseCommunication(clientID, false);
         return true;
     }
 
-    private void setTargetPosition(int module, float targetPosition) {
-        int ret;
-        ret = coppeliaSimApi.simxSetJointTargetPosition(clientID, moduleHandlers.get(module) + 2,
-                targetPosition, remoteApi.simx_opmode_oneshot);
-        if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
-            // System.out.format("Updating module: " + module);
+    private float calcTargetPosition(Module module, double time) {
+        float targetPosition;
+        if (usePhaseControl && !useAngularFreqControl && !useAmplitudeControl) {
+            targetPosition = (float) (maxAmplitude[moduleHandlers.indexOf(module)]
+                    * Math.sin(maxAngFreq[moduleHandlers.indexOf(module)] * time
+                            + phaseControl[moduleHandlers.indexOf(module)] / 180. * Math.PI));
         } else {
-            System.out.format(
-                    "%d: updateJoints Function: Remote API function call returned with error code %d when updating joint %d\n",
-                    rank, ret, module);
+            double amplitude = maxAmplitude[moduleHandlers.indexOf(module)]
+                    * amplitudeControl[moduleHandlers.indexOf(module)];
+            double angularFreq = maxAngFreq[moduleHandlers.indexOf(module)]
+                    * andularFreqControl[moduleHandlers.indexOf(module)];
+            targetPosition = (float) (amplitude
+                    * Math.sin(angularFreq * time + phaseControl[moduleHandlers.indexOf(module)] / 180. * Math.PI));
         }
-    }
 
-    private float getJointPosition(int jointHandle) {
-
-        FloatW jointPosition = new FloatW(1);
-        int ret = coppeliaSimApi.simxGetJointPosition(clientID, jointHandle, jointPosition,
-                remoteApi.simx_opmode_streaming);
-        if (ret == remoteApi.simx_return_ok || ret == remoteApi.simx_return_novalue_flag) {
-            return jointPosition.getValue();
-        } else {
-            System.out.format("Error getting position for joint %d\n", jointHandle);
-            return Float.NaN; // Return NaN to indicate an error
-        }
-    }
-
-    private static boolean areFloatsEqual(float float1, float float2) {
-        return Math.abs(float1 - float2) <= 1f;
-    }
-
-    private void removeBase() {
-        var iterator = moduleHandlers.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Integer, Integer> entry = iterator.next();
-            if (entry.getValue().equals(0)) {
-                iterator.remove();
-            }
-        }
+        return targetPosition;
     }
 }

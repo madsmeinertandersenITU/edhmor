@@ -56,25 +56,25 @@ public class EvaluateEMERGESetTest {
         Connection backLegConnection = new Connection(rootNode, backLeg, 8, 1);
         rootNode.addChildren(backLeg, backLegConnection);
 
-        Node Sensor1 = new Node(2, rootNode);
-        Connection connectionS1 = new Connection(rootNode, Sensor1, 1, 1);
-        rootNode.addChildren(Sensor1, connectionS1);
+        // Node Sensor1 = new Node(2, rootNode);
+        // Connection connectionS1 = new Connection(rootNode, Sensor1, 1, 1);
+        // rootNode.addChildren(Sensor1, connectionS1);
 
-        Node Sensor2 = new Node(2, rootNode);
-        Connection connectionS2 = new Connection(rootNode, Sensor2, 3, 1);
-        rootNode.addChildren(Sensor2, connectionS2);
+        // Node Sensor2 = new Node(2, rootNode);
+        // Connection connectionS2 = new Connection(rootNode, Sensor2, 3, 1);
+        // rootNode.addChildren(Sensor2, connectionS2);
 
-        Node Sensor3 = new Node(2, rootNode);
-        Connection connectionS3 = new Connection(rootNode, Sensor3, 5, 1);
-        rootNode.addChildren(Sensor3, connectionS3);
+        // Node Sensor3 = new Node(2, rootNode);
+        // Connection connectionS3 = new Connection(rootNode, Sensor3, 5, 1);
+        // rootNode.addChildren(Sensor3, connectionS3);
 
-        Node Sensor4 = new Node(2, rootNode);
-        Connection connectionS4 = new Connection(rootNode, Sensor4, 7, 1);
-        rootNode.addChildren(Sensor4, connectionS4);
+        // Node Sensor4 = new Node(2, rootNode);
+        // Connection connectionS4 = new Connection(rootNode, Sensor4, 7, 1);
+        // rootNode.addChildren(Sensor4, connectionS4);
 
         // CONNECTIONS TO rightLeg1
         Node rightLeg2 = new Node(1, rightLeg1);
-        Connection rightLeg2connection = new Connection(rightLeg1, rightLeg2, 3, 1);
+        Connection rightLeg2connection = new Connection(rightLeg1, rightLeg2, 3, 0);
         rightLeg1.addChildren(rightLeg2, rightLeg2connection);
 
         // CONNECTIONS TO frontLeg
@@ -84,7 +84,7 @@ public class EvaluateEMERGESetTest {
 
         // CONNECTIONS TO leftLeg1
         Node leftLeg2 = new Node(1, leftLeg1);
-        Connection connection2 = new Connection(leftLeg1, leftLeg2, 3, 1);
+        Connection connection2 = new Connection(leftLeg1, leftLeg2, 3, 0);
         leftLeg1.addChildren(leftLeg2, connection2);
 
         // CONNECTIONS TO backLeg
@@ -107,9 +107,9 @@ public class EvaluateEMERGESetTest {
 
         // Assemble the robot in Coppelia and evaluate it
         CoppeliaSimEvaluator evaluador = new CoppeliaSimEvaluator(robotIndividual.getChromosomeAt(0));
-        // double fitness = evaluador.evaluate();
+        double fitness = evaluador.evaluate();
 
-        // System.out.println("The fitness of the robot is " + fitness);
+        System.out.println("The fitness of the robot is " + fitness);
 
         IntW pingTime = new IntW(0);
         coppeliaSimApi.simxGetPingTime(clientID, pingTime);

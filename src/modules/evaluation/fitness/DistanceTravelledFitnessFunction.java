@@ -127,9 +127,7 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
     private Vector3d getBasePose() {
         // int simxGetObjectPosition(int clientID,int objectHandle, int
         // relativeToObjectHandle, FloatWA position, int operationMode)
-        Set<Integer> keys = robot.getModuleHandlers().keySet();
-        List<Integer> keyList = new ArrayList<>(keys);
-        Integer keyNumber = keyList.get(keyList.size() - 1);
+        Integer keyNumber = robot.getModuleHandlers().get(robot.getModuleHandlers().size() - 1).id;
 
         int baseHandle = keyNumber + 1;
         System.out.println("BASE AGAIN: " + baseHandle);
@@ -148,7 +146,7 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
 
     private Vector3d getCenterOfMass() {
 
-        Map<Integer, Integer> modules = robot.getModuleHandlers();
+        List<modules.individual.Module> modules = robot.getModuleHandlers();
         IntWA handles = new IntWA(1);
 
         FloatWA floatData = new FloatWA(modules.size() * 3);
@@ -173,7 +171,7 @@ public class DistanceTravelledFitnessFunction extends FitnessFunction {
         for (int i = 0; i < modules.size(); i++) {
             double moduleMass = ModuleSetFactory.getModulesSet().getModulesMass(modulesType[i]);
 
-            int index = Arrays.binarySearch(orderedHandles, modules.get(i) + 1);
+            int index = Arrays.binarySearch(orderedHandles, modules.get(i).id + 1);
             x += floatData.getArray()[3 * index] * moduleMass;
             y += floatData.getArray()[3 * index + 1] * moduleMass;
             z += floatData.getArray()[3 * index + 2] * moduleMass;

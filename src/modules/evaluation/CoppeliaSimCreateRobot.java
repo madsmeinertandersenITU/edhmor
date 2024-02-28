@@ -34,6 +34,7 @@ import java.util.Set;
 import javax.vecmath.Point3d;
 import modules.ModuleSet;
 import modules.ModuleSetFactory;
+import modules.individual.Module;
 import modules.util.ModuleRotation;
 import modules.util.SimulationConfiguration;
 import mpi.MPI;
@@ -50,7 +51,7 @@ public class CoppeliaSimCreateRobot {
 
     protected remoteApi coppeliaSimApi;
     protected int clientID;
-    private Map<Integer, Integer> moduleHandlers;
+    private List<Module> moduleHandlers;
     private List<Integer> forceSensorHandlers;
     private List<Integer> proximitySensorHandlers;
     protected ModuleSet moduleSet;
@@ -224,23 +225,29 @@ public class CoppeliaSimCreateRobot {
             System.out.println(rank + ": CoppeliaSimCreateRobot. Robot assemled with errors.");
         }
 
-        System.out.println("FINAL HANDLERS: " + moduleHandlers);
+        printModuleHandlers();
 
         return success;
     }
 
+    public void printModuleHandlers() {
+        System.out.println("Current Module Handlers Configuration:");
+        for (Module module : moduleHandlers) {
+            System.out.println(module.toString());
+        }
+    }
+
     protected boolean initAssembly(double[] posIni, double[] poszero) {
-        moduleHandlers = new LinkedHashMap<>(); // Change the type to Map
+        moduleHandlers = new ArrayList<>(); // Change the type to Map
         forceSensorHandlers = new ArrayList<Integer>();
 
         int rootModuleHandler = addModule(0);
-        moduleHandlers.put(rootModuleHandler, 0); // Store in the map
+        Module base = new Module(rootModuleHandler, 0);
+        moduleHandlers.add(base); // Store in the map
         System.out.println("ADDING ROOT 232: " + rootModuleHandler);
 
         if (pauseandshow) {
-            Set<Integer> keys = moduleHandlers.keySet();
-            List<Integer> keyList = new ArrayList<>(keys);
-            Integer keyNumber = keyList.get(0);
+            Integer keyNumber = moduleHandlers.get(0).id;
             moveModule(keyNumber, -1, posIni);
             System.out.println("Just added module: 0");
             System.out.println("Amplitude control, AngularFreqControl, PhaseControl");
@@ -270,18 +277,14 @@ public class CoppeliaSimCreateRobot {
         // Move the robot up
         // double[] posIni = {0, 0, initialHeight};
         // System.out.println("Moving robot up");
-        Set<Integer> keys = moduleHandlers.keySet();
-        List<Integer> keyList = new ArrayList<>(keys);
 
-        Integer lastKey = keyList.get(0);
+        Integer lastKey = moduleHandlers.get(0).id;
         System.out.println("MOVING MODULE 263 " + lastKey);
         return moveModule(lastKey, -1, posIni);
     }
 
     protected void shiftBaseTemp(double[] posIni, double[] poszero, boolean reset) {
-        Set<Integer> keys = moduleHandlers.keySet();
-        List<Integer> keyList = new ArrayList<>(keys);
-        Integer keyNumber = keyList.get(0);
+        Integer keyNumber = moduleHandlers.get(0).id;
         if (reset) {
             moveModule(keyNumber, -1, poszero);
         } else {
@@ -301,16 +304,18 @@ public class CoppeliaSimCreateRobot {
         int[] moduleType = robotFeatures.getModuleType();
         int[] parentModule = robotFeatures.getParentModule();
         int modType = moduleType[module];
-        moduleHandlers.put(moduleHandler, modType);
+
+        Module module2 = new Module(moduleHandler, modType);
+        moduleHandlers.add(module2);
         System.out.println("ADDING MODULE 286 " + moduleHandler);
         int parentModuleType = moduleType[parentModule[module]];
         int conectionFace = robotFeatures.getDadFace()[module - 1] % moduleSet.getModulesFacesNumber(parentModuleType);
         int orientation = robotFeatures.getChildOrientation()[(module - 1)] % moduleSet.getModuleOrientations(modType);
 
-        Set<Integer> keys = moduleHandlers.keySet();
-        List<Integer> keyList = new ArrayList<>(keys);
-
-        var result = keyList.get(parentModule[module]);
+        Integer parentIndex = parentModule[module];
+        Module parent = moduleHandlers.get(parentIndex);
+        parent.connectModule(module2);
+        var result = parent.id;
 
         // Get the vector which is normal to the face of the parent
         Vector3D normalParentFace = moduleSet.getNormalFaceVector(parentModuleType, conectionFace);
@@ -360,8 +365,7 @@ public class CoppeliaSimCreateRobot {
         // The rest have 4 (2 shapes, 1 joint and 1 dummy)
         // We first calculate the number of shapes of the parent module
         // substract one to remove force sensor between modules
-        Integer keyNumber = keyList.get(module - 1);
-        System.out.println(keyList);
+        Integer keyNumber = moduleHandlers.get(module - 1).id;
         System.out.println("CALC numberOfShapesAndJoints 344  GET " + keyNumber);
 
         System.out.println("CALC numberOfShapesAndJoints 344  GET PARENT " + result);
@@ -380,7 +384,7 @@ public class CoppeliaSimCreateRobot {
         if (moduleSet.faceBelongsToBasePart(modType, childFace)) {
             success &= setObjectParent(moduleHandler + 1, forceSensor);
         } else {
-            numberOfShapesAndJoints = forceSensor - moduleHandlers.get(keyNumber);
+            numberOfShapesAndJoints = forceSensor - moduleHandlers.get(keyNumber).id;
             if (numberOfShapesAndJoints == 4) {
                 success &= setObjectParent(moduleHandler + 3, forceSensor);
                 success &= setObjectParent(moduleHandler + 2, moduleHandler + 3);
@@ -395,7 +399,7 @@ public class CoppeliaSimCreateRobot {
 
         }
         if (pauseandshow) {
-            Integer keyZero = keyList.get(0);
+            Integer keyZero = moduleHandlers.get(0).id;
             moveModule(keyZero, -1, posIni);
             System.out.println("Just added module: " + module);
             System.out.println("Amplitude control, AngularFreqControl, PhaseControl");
@@ -535,7 +539,7 @@ public class CoppeliaSimCreateRobot {
         scanner.nextLine();
     }
 
-    public Map<Integer, Integer> getModuleHandlers() {
+    public List<Module> getModuleHandlers() {
         return moduleHandlers;
     }
 
