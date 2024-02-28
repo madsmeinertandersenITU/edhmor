@@ -55,10 +55,15 @@ public class ConeSensorController extends RobotController {
         for (modules.individual.Module module : moduleHandlers) {
             if (module.type == 1) { // Assuming type 1 is for emerge modules with actuators
                 // Initialize CPGs with individual parameters if needed
-                if (module.connectedModules.size() == 1) {
+                if (module.connectedModules.size() == 1 && module.type == 1) {
                     legs.add(new Leg(module.connectedModules.getFirst(), module));
                 }
             }
+        }
+
+        System.out.println("Current Legs Configuration:");
+        for (Leg leg : legs) {
+            System.out.println(leg.toString());
         }
 
         for (int module = 0; module < moduleHandlers.size(); module++) {

@@ -8,4 +8,9 @@ public class Leg {
         this.topPart = tModule;
         this.bottomPart = bModule;
     }
+
+    @Override
+    public String toString() {
+        return String.format("TopModule: %d, BottomModule: %d", topPart.id, bottomPart.id);
+    }
 }

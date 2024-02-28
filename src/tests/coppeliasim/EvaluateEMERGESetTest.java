@@ -48,13 +48,13 @@ public class EvaluateEMERGESetTest {
         Connection connection = new Connection(rootNode, leftLeg1, 2, 1);
         rootNode.addChildren(leftLeg1, connection);
 
-        Node frontLeg = new Node(1, rootNode);
-        Connection frontLegConnection = new Connection(rootNode, frontLeg, 4, 1);
-        rootNode.addChildren(frontLeg, frontLegConnection);
+        // Node frontLeg = new Node(1, rootNode);
+        // Connection frontLegConnection = new Connection(rootNode, frontLeg, 4, 1);
+        // rootNode.addChildren(frontLeg, frontLegConnection);
 
-        Node backLeg = new Node(1, rootNode);
-        Connection backLegConnection = new Connection(rootNode, backLeg, 8, 1);
-        rootNode.addChildren(backLeg, backLegConnection);
+        // Node backLeg = new Node(1, rootNode);
+        // Connection backLegConnection = new Connection(rootNode, backLeg, 8, 1);
+        // rootNode.addChildren(backLeg, backLegConnection);
 
         // Node Sensor1 = new Node(2, rootNode);
         // Connection connectionS1 = new Connection(rootNode, Sensor1, 1, 1);
@@ -74,23 +74,23 @@ public class EvaluateEMERGESetTest {
 
         // CONNECTIONS TO rightLeg1
         Node rightLeg2 = new Node(1, rightLeg1);
-        Connection rightLeg2connection = new Connection(rightLeg1, rightLeg2, 3, 0);
+        Connection rightLeg2connection = new Connection(rightLeg1, rightLeg2, 1, 1);
         rightLeg1.addChildren(rightLeg2, rightLeg2connection);
 
         // CONNECTIONS TO frontLeg
-        Node frontLeg2 = new Node(1, frontLeg);
-        Connection frontLegConnection2 = new Connection(frontLeg, frontLeg2, 3, 1);
-        frontLeg.addChildren(frontLeg2, frontLegConnection2);
+        // Node frontLeg2 = new Node(1, frontLeg);
+        // Connection frontLegConnection2 = new Connection(frontLeg, frontLeg2, 3, 1);
+        // frontLeg.addChildren(frontLeg2, frontLegConnection2);
 
         // CONNECTIONS TO leftLeg1
-        Node leftLeg2 = new Node(1, leftLeg1);
-        Connection connection2 = new Connection(leftLeg1, leftLeg2, 3, 0);
-        leftLeg1.addChildren(leftLeg2, connection2);
+        // Node leftLeg2 = new Node(1, leftLeg1);
+        // Connection connection2 = new Connection(leftLeg1, leftLeg2, 1, 0);
+        // leftLeg1.addChildren(leftLeg2, connection2);
 
         // CONNECTIONS TO backLeg
-        Node backLeg2 = new Node(1, backLeg);
-        Connection backLegConnection2 = new Connection(backLeg, backLeg2, 3, 1);
-        backLeg.addChildren(backLeg2, backLegConnection2);
+        // Node backLeg2 = new Node(1, backLeg);
+        // Connection backLegConnection2 = new Connection(backLeg, backLeg2, 3, 1);
+        // backLeg.addChildren(backLeg2, backLegConnection2);
 
         robotIndividual.setRootNode(rootNode);
         robotIndividual.modifyChromosome();

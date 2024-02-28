@@ -365,7 +365,7 @@ public class CoppeliaSimCreateRobot {
         // The rest have 4 (2 shapes, 1 joint and 1 dummy)
         // We first calculate the number of shapes of the parent module
         // substract one to remove force sensor between modules
-        Integer keyNumber = moduleHandlers.get(module - 1).id;
+        Integer keyNumber = moduleHandlers.get(module).id;
         System.out.println("CALC numberOfShapesAndJoints 344  GET " + keyNumber);
 
         System.out.println("CALC numberOfShapesAndJoints 344  GET PARENT " + result);
