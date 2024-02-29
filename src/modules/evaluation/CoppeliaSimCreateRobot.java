@@ -370,7 +370,8 @@ public class CoppeliaSimCreateRobot {
 
         System.out.println("CALC numberOfShapesAndJoints 344  GET PARENT " + result);
 
-        int numberOfShapesAndJoints = keyNumber - result - 1;
+        int numberOfShapesAndJoints = moduleHandlers.get(parentIndex + 1).id
+                - moduleHandlers.get(parentIndex).id - 1;
         int offset = 0;
         if (!moduleSet.faceBelongsToBasePart(moduleType[parentModule[module]], conectionFace)) {
             offset = numberOfShapesAndJoints / 2;

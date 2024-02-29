@@ -111,13 +111,13 @@
         <FirstNumConnections>1</FirstNumConnections> 
         
         <!-- Maximum number of  modules when creating a robot --> 
-        <NMaxModulesIni>4</NMaxModulesIni>
+        <NMaxModulesIni>20</NMaxModulesIni>
         
         <!-- Minimum number of modules when creating a robot --> 
         <NMinModulesIni>2</NMinModulesIni>
         
         <!-- Maximum number of connections (children) for a module --> 
-        <NMaxConnections>1</NMaxConnections>
+        <NMaxConnections>10</NMaxConnections>
         
         <!-- Types of modules to use from the module set --> 
         <TypeModules>

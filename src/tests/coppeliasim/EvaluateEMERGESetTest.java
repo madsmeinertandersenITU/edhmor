@@ -44,9 +44,9 @@ public class EvaluateEMERGESetTest {
         Connection rightLeg1connection = new Connection(rootNode, rightLeg1, 6, 0);
         rootNode.addChildren(rightLeg1, rightLeg1connection);
 
-        // Node leftLeg1 = new Node(1, rootNode);
-        // Connection connection = new Connection(rootNode, leftLeg1, 2, 1);
-        // rootNode.addChildren(leftLeg1, connection);
+        Node leftLeg1 = new Node(1, rootNode);
+        Connection connection = new Connection(rootNode, leftLeg1, 2, 0);
+        rootNode.addChildren(leftLeg1, connection);
 
         // Node frontLeg = new Node(1, rootNode);
         // Connection frontLegConnection = new Connection(rootNode, frontLeg, 4, 1);
@@ -87,9 +87,13 @@ public class EvaluateEMERGESetTest {
         // frontLeg.addChildren(frontLeg2, frontLegConnection2);
 
         // CONNECTIONS TO leftLeg1
-        // Node leftLeg2 = new Node(1, leftLeg1);
-        // Connection connection2 = new Connection(leftLeg1, leftLeg2, 1, 0);
-        // leftLeg1.addChildren(leftLeg2, connection2);
+        Node leftLeg2 = new Node(1, leftLeg1);
+        Connection connection2 = new Connection(leftLeg1, leftLeg2, 1, 1);
+        leftLeg1.addChildren(leftLeg2, connection2);
+
+        Node leftLeg3 = new Node(1, leftLeg2);
+        Connection connection3 = new Connection(leftLeg2, leftLeg3, 1, 0);
+        leftLeg2.addChildren(leftLeg2, connection3);
 
         // CONNECTIONS TO backLeg
         // Node backLeg2 = new Node(1, backLeg);
