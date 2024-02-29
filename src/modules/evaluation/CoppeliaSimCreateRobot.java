@@ -335,7 +335,8 @@ public class CoppeliaSimCreateRobot {
         // First, calculate how many shapes and joints has a module
         // Atron modules have 6 (4 shapes, 1 joint and 1 dummy)
         // The rest have 4 (2 shapes, 1 joint and 1 dummy)
-        int numberOfShapesAndJoints = moduleHandlers.get(module) - moduleHandlers.get(parentModule[module]) - 1;
+        int numberOfShapesAndJoints = moduleHandlers.get(parentModule[module] + 1)
+                - moduleHandlers.get(parentModule[module]) - 1;
         System.out.println("CALC numberOfShapesAndJoints 344  GET " + numberOfShapesAndJoints);
 
         // And calculate the offset of the shape to attach, if not attached to the base
