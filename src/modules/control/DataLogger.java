@@ -53,6 +53,16 @@ public class DataLogger {
         }
     }
 
+    public void logPosition(float topPosition, float bottomPosition) {
+        try {
+            // Write the formatted string to the file
+            writer.write(topPosition + "," + bottomPosition + "\n");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void logDistance(long currentTime, float distance) {
         try { // Format the string with periods as decimal separators and no leading zeros
             String formattedValue = String.format("%.2f", distance);
