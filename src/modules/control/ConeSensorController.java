@@ -38,6 +38,8 @@ public class ConeSensorController extends RobotController {
     int[] phaseControl, moduleType;
     double[] amplitudeControl, andularFreqControl;
 
+    ArrayList<Module> baseMods = new ArrayList<>();
+
     double[] maxAmplitude = new double[moduleHandlers.size()]; // FIXME: could have more control parameters than
                                                                // actuators with modules with more dof
     double[] maxAngFreq = new double[moduleHandlers.size()]; // FIXME: could have more control parameters than actuators
@@ -54,18 +56,24 @@ public class ConeSensorController extends RobotController {
 
         for (modules.individual.Module module : moduleHandlers) {
             if (module.type == 1) { // Assuming type 1 is for emerge modules with actuators
-                // Initialize CPGs with individual parameters if needed
-                if (module.connectedModules.size() == 1 && module.type == 1) {
-                    legs.add(new Leg(module.connectedModules.getFirst(), module));
+
+                if (module.connectedModules.size() == 2 && module.type == 1
+                        && module.connectedModules.stream().anyMatch(x -> x.type == 0)) {
+                    Module middle = module.connectedModules.stream().filter(x -> x.type == 1).findFirst().get();
+                    Module bottom = middle.connectedModules.stream().filter(x -> x.id != module.id).findFirst().get();
+                    legs.add(new Leg(module, middle, bottom));
                 }
             }
         }
 
         System.out.println("Current Legs Configuration:");
+        int index = 0;
         for (Leg leg : legs) {
             leg.topPart.phase = 0;
+            leg.middlePart.phase = 1;
             leg.bottomPart.phase = Math.PI;
             System.out.println(leg.toString());
+            index++;
         }
 
         for (int module = 0; module < moduleHandlers.size(); module++) {
@@ -85,28 +93,52 @@ public class ConeSensorController extends RobotController {
         // TODO: Remove the first module (as it is a base module without actuators)
 
         coppeliaSimApi.simxPauseCommunication(clientID, true);
-        double dt = 0.05; // Define your timestep
+        double dt = 0.1; // Define your timestep
 
-        coppeliaSimApi.simxSetJointTargetPosition(clientID, 18 + 2,
-                -180, remoteApi.simx_opmode_oneshot);
+        // for (Module module : baseMods) {
+        // coppeliaSimApi.simxSetJointTargetPosition(clientID, module.id + 2,
+        // -180, remoteApi.simx_opmode_oneshot);
 
+        // }
+        int index = 0;
         for (Leg leg : legs) {
             modules.individual.Module topModule = leg.topPart;
+            Module middleModule = leg.middlePart;
             modules.individual.Module bottomModule = leg.bottomPart;
 
+            if (topModule.id == 18) {
+                coppeliaSimApi.simxSetJointTargetPosition(clientID, topModule.id + 2,
+                        -180, remoteApi.simx_opmode_oneshot);
+                continue;
+            }
+
+            if (topModule.id == 28) {
+                coppeliaSimApi.simxSetJointTargetPosition(clientID, topModule.id + 2,
+                        -180, remoteApi.simx_opmode_oneshot);
+                continue;
+            }
+
             // Simplified parameters for demonstration
-            double omega = 1.0; // Natural frequency
-            double K = 0.6; // Coupling strength
+            double omega = 2.0; // Natural frequency
+            double K = 0.2; // Coupling strength
             double phi = Math.PI / 1.5; // Desired phase difference
+
+            if (index % 2 == 0) {
+                dt = 0.05;
+            } else {
+                dt = 0.075;
+            }
 
             // Update phases with RK4
             updatePhaseWithRK4(topModule, omega, K, phi, bottomModule.phase, dt);
-            updatePhaseWithRK4(bottomModule, omega, K, phi, topModule.phase, dt);
+            updatePhaseWithRK4(middleModule, omega, K, phi, topModule.phase, dt);
+            updatePhaseWithRK4(bottomModule, omega, K, phi, middleModule.phase, dt);
 
             // Now compute target positions based on updated phases
             // You can use your existing calcTargetPosition method,
             // or modify it to use the phase directly
             float topTargetPosition = calcTargetPositionBasedOnPhase(topModule);
+            float middleTargetPosition = calcTargetPositionBasedOnPhase(middleModule);
             float bottomTargetPosition = calcTargetPositionBasedOnPhase(bottomModule);
 
             sensorValueLogger.logPosition(topTargetPosition, bottomTargetPosition);
@@ -114,12 +146,17 @@ public class ConeSensorController extends RobotController {
             int retTop = coppeliaSimApi.simxSetJointTargetPosition(clientID, topModule.id + 2,
                     topTargetPosition, remoteApi.simx_opmode_oneshot);
 
+            int retMiddle = coppeliaSimApi.simxSetJointTargetPosition(clientID, middleModule.id + 2,
+                    middleTargetPosition, remoteApi.simx_opmode_oneshot);
+
             int retBottom = coppeliaSimApi.simxSetJointTargetPosition(clientID, bottomModule.id + 2,
                     bottomTargetPosition, remoteApi.simx_opmode_oneshot);
 
-            if ((retTop == remoteApi.simx_return_ok && retBottom == remoteApi.simx_return_ok)
+            if ((retTop == remoteApi.simx_return_ok && retBottom == remoteApi.simx_return_ok
+                    && retMiddle == remoteApi.simx_return_ok)
                     || (retTop == remoteApi.simx_return_novalue_flag
-                            && retBottom == remoteApi.simx_return_novalue_flag)) {
+                            && retBottom == remoteApi.simx_return_novalue_flag
+                            && retMiddle == remoteApi.simx_return_novalue_flag)) {
                 // System.out.println("Updating module: " + keyNumber + 2);
             } else {
                 // System.out.format(
@@ -130,6 +167,7 @@ public class ConeSensorController extends RobotController {
                 return false;
             }
 
+            index++;
         }
 
         sensorValueLogger.flush();
